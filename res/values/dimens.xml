@@ -1,0 +1,14 @@
+<resources>
+
+    
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_medium">14sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_xlarge">18sp</dimen>
+    <dimen name="text_size_diff_large_small">6sp</dimen>
+    
+    <!-- Map -->
+    <dimen name="map_content_padding">8dp</dimen>
+    <dimen name="map_infowindow_width">300dp</dimen>
+
+</resources>
