@@ -3,7 +3,7 @@ package com.icetraveller.android.apps.cometpark.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class ComeParkContract {
+public final class CometParkContract {
 
 	interface SpotColumns {
 		String ID = "spot_id";
@@ -15,6 +15,7 @@ public class ComeParkContract {
 
 	interface LotColumns {
 		String ID = "lot_id";
+		String NAME = "lot_name";
 		String LOCATION_TOP_LEFT = "Lot_location_top_left";
 		String LOCATION_TOP_RIGHT = "Lot_location_top_right";
 		String LOCATION_BOTTOM_LEFT = "Lot_location_bottom_left";
@@ -68,7 +69,7 @@ public class ComeParkContract {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.cometpark.lot";
         
         /** Default "ORDER BY" clause. */ 
-        public static final String DEFAULT_SORT = LotColumns.ID + " ASC";
+        public static final String DEFAULT_SORT = LotColumns.NAME + " ASC";
         
         /** Build {@link Uri} for all lots */
         public static Uri buildUri() {
@@ -79,6 +80,11 @@ public class ComeParkContract {
         public static Uri buildLotUri(int lotId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(lotId)).build();
+        }
+        /** Build {@link Uri} for requested spot. BETA TODO*/
+        public static Uri buildLotUri(String lotName) {
+        	return CONTENT_URI.buildUpon()
+        			.appendPath(String.valueOf(lotName)).build();
         }
 	}
 	
@@ -97,6 +103,8 @@ public class ComeParkContract {
             return CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(locationId)).build();
         }
-		
+	}
+	
+	private CometParkContract(){
 	}
 }
