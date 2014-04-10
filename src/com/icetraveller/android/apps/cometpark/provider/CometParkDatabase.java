@@ -43,15 +43,6 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-//		 db.execSQL("CREATE TABLE " + Tables.BLOCKS + " ("
-//	                + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-//	                + BlocksColumns.BLOCK_ID + " TEXT NOT NULL,"
-//	                + BlocksColumns.BLOCK_TITLE + " TEXT NOT NULL,"
-//	                + BlocksColumns.BLOCK_START + " INTEGER NOT NULL,"
-//	                + BlocksColumns.BLOCK_END + " INTEGER NOT NULL,"
-//	                + BlocksColumns.BLOCK_TYPE + " TEXT,"
-//	                + BlocksColumns.BLOCK_META + " TEXT,"
-//	                + "UNIQUE (" + BlocksColumns.BLOCK_ID + ") ON CONFLICT REPLACE)");
 		db.execSQL("CREATE TABLE "+Tables.SPOTS+ " ("
 				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ SpotColumns.ID + " INTEGER NOT NULL,"
@@ -82,8 +73,16 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-		
+		 LOGD(TAG, "onUpgrade() from " + oldVersion + " to " + newVersion);
+		 
+		 //TODO cancel all updates or sync
+		 
+		 int version = oldVersion;
+		 //TODO will come back later
 	}
+	
+	public static void deleteDatabase(Context context) {
+        context.deleteDatabase(DATABASE_NAME);
+    }
 
 }
