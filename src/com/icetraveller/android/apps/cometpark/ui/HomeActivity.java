@@ -1,6 +1,6 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
-
+import android.app.SearchManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 
 import com.icetraveller.android.apps.cometpark.R;
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
@@ -41,45 +42,68 @@ public class HomeActivity extends BaseActivity implements
 			return;
 		}
 
-		setContentView(R.layout.activity_main);
-
+		setContentView(R.layout.activity_home);
 		FragmentManager fm = getSupportFragmentManager();
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		String mainScreenLabel;
 
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+
+		String homeScreenLabel;
 		if (mViewPager != null) {
 			// Phone setup
-			mViewPager.setAdapter(new MainPagerAdapter(
+			mViewPager.setAdapter(new HomePagerAdapter(
 					getSupportFragmentManager()));
 			mViewPager.setOnPageChangeListener(this);
-			// mViewPager.setPageMarginDrawable(R.drawable.grey_border_inset_lr);
-			// mViewPager.setPageMargin(getResources().getDimensionPixelSize(
-			// R.dimen.page_margin_width));
+			 mViewPager.setPageMarginDrawable(R.drawable.grey_border_inset_lr);
+			 mViewPager.setPageMargin(getResources().getDimensionPixelSize(
+			 R.dimen.page_margin_width));
 
 			final ActionBar actionBar = getSupportActionBar();
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+			
 			actionBar.addTab(actionBar.newTab().setText(R.string.title_rank)
 					.setTabListener(this));
+			
+			setHasTabs();
 
 			if (getIntent() != null
 					&& TAB_LOTS.equals(getIntent().getStringExtra(
 							EXTRA_DEFAULT_TAB)) && savedInstanceState == null) {
 				mViewPager.setCurrentItem(1);
 			}
+			
+			
 
-			mainScreenLabel = getString(R.string.title_rank);
+			homeScreenLabel = getString(R.string.title_rank);
 
 			getSupportActionBar().setHomeButtonEnabled(false);
 
-			// Sync data on load
-			if (savedInstanceState == null) {
-				// TODO
-				// registerGCMClient();
-			}
 
+		}else{
+			//wowow
+			homeScreenLabel = "ooh";
 		}
-
+		getSupportActionBar().setHomeButtonEnabled(false);
+		LOGD("Tracker", homeScreenLabel);
+		
+		// Sync data on load
+        if (savedInstanceState == null) {
+//            registerGCMClient();TODO
+        }
 	}
+	
+	@Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        if (mGCMRegisterTask != null) {
+//            mGCMRegisterTask.cancel(true);
+//        }
+//
+//        try {
+//            GCMRegistrar.onDestroy(this);
+//        } catch (Exception e) {
+//            LOGW(TAG, "C2DM unregistration error", e);
+//        }
+    }
 
 	@Override
 	public void onPageScrollStateChanged(int arg0) {
@@ -118,8 +142,8 @@ public class HomeActivity extends BaseActivity implements
 	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
 	}
 
-	private class MainPagerAdapter extends FragmentPagerAdapter {
-		public MainPagerAdapter(FragmentManager fm) {
+	private class HomePagerAdapter extends FragmentPagerAdapter {
+		public HomePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
@@ -127,7 +151,7 @@ public class HomeActivity extends BaseActivity implements
 		public Fragment getItem(int position) {
 			switch (position) {
 			case 0:
-//				return new RankFragment();
+				 return new RankFragment();
 			}
 			return null;
 		}
@@ -142,14 +166,14 @@ public class HomeActivity extends BaseActivity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		mOptionsMenu = menu;
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.home, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_refresh: 
+		case R.id.menu_refresh:
 			// TODO triggerRefresh();
 			return true;
 
