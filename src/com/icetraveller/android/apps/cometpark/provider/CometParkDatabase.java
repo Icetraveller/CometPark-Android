@@ -45,15 +45,15 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE "+Tables.SPOTS+ " ("
 				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ SpotColumns.ID + " INTEGER NOT NULL,"
-				+ SpotColumns.LOT + " INTEGER NOT NULL,"
+				+ SpotColumns.ID + " TEXT NOT NULL,"
+				+ SpotColumns.LOT + " TEXT NOT NULL,"
 				+ SpotColumns.TYPE + " INTEGER NOT NULL,"
 				+ SpotColumns.LOCATIONID + " INTEGER NOT NULL,"
 				+ SpotColumns.STATUS + " INTEGER NOT NULL,"
 				+ "UNIQUE (" + SpotColumns.ID+ ") ON CONFLICT REPLACE)");
 		db.execSQL("CREATE TABLE "+Tables.LOTS+ " ("
 				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ LotColumns.ID + " INTEGER NOT NULL,"
+				+ LotColumns.ID + " TEXT NOT NULL,"
 				+ LotColumns.NAME + " TEXT NOT NULL,"
 				+ LotColumns.STATUS + " INTEGER NOT NULL,"
 				+ LotColumns.MAP_TILE_FILE + " TEXT NOT NULL,"
@@ -65,7 +65,7 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 				+ "UNIQUE (" + LotColumns.ID+ ") ON CONFLICT REPLACE)");
 		db.execSQL("CREATE TABLE "+Tables.LOCATIONS+ " ("
 				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ LocationColumns.ID + " INTEGER NOT NULL,"
+				+ LocationColumns.ID + " TEXT NOT NULL,"
 				+LocationColumns.LATITUDE + " DOUBLE NOT NULL,"
 				+LocationColumns.LONGITUDE + " DOUBLE NOT NULL,"
 				+ "UNIQUE (" + LocationColumns.ID+ ") ON CONFLICT REPLACE)");

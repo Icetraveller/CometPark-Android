@@ -2,6 +2,8 @@ package com.icetraveller.android.apps.cometpark.provider;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
+import android.text.TextUtils;
 
 public final class CometParkContract {
 
@@ -55,9 +57,14 @@ public final class CometParkContract {
         }
         
         /** Build {@link Uri} for requested spot. BETA TODO*/
-        public static Uri buildSpotUri(int spotId) {
+        public static Uri buildSpotUri(String spotId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(spotId)).build();
+        }
+        
+        /** Read {@link #SPOTS_ID} from {@link Spots} {@link Uri}. */
+        public static String getSpotId(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
 	}
 	
@@ -77,14 +84,19 @@ public final class CometParkContract {
         }
         
         /** Build {@link Uri} for requested spot. BETA TODO*/
-        public static Uri buildLotUri(int lotId) {
+        public static Uri buildLotUri(String lotId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(lotId)).build();
         }
         /** Build {@link Uri} for requested spot. BETA TODO*/
-        public static Uri buildLotUri(String lotName) {
+        public static Uri buildLotNameUri(String lotName) {
         	return CONTENT_URI.buildUpon()
         			.appendPath(String.valueOf(lotName)).build();
+        }
+        
+        /** Read {@link #LOTS_ID} from {@link Lots} {@link Uri}. */
+        public static String getLotId(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
 	}
 	
@@ -99,11 +111,26 @@ public final class CometParkContract {
         public static final String DEFAULT_SORT = LocationColumns.ID + " ASC";
         
         /** Build {@link Uri} for requested spot. BETA TODO*/
-        public static Uri buildLocationUri(int locationId) {
+        public static Uri buildLocationUri(String locationId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(locationId)).build();
         }
+        
+        /** Read {@link #LOCATIONS_ID} from {@link Locations} {@link Uri}. */
+        public static String getLocationId(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
 	}
+	
+	public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
+        return uri.buildUpon().appendQueryParameter(
+                ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();
+    }
+
+    public static boolean hasCallerIsSyncAdapterParameter(Uri uri) {
+        return TextUtils.equals("true",
+                uri.getQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER));
+    }
 	
 	private CometParkContract(){
 	}

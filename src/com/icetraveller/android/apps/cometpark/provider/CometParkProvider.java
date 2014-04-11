@@ -5,6 +5,8 @@ import java.util.Arrays;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Locations;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Lots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Spots;
+import com.icetraveller.android.apps.cometpark.provider.CometParkDatabase.Tables;
+import com.icetraveller.android.apps.cometpark.utils.SelectionBuilder;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -133,15 +135,47 @@ public class CometParkProvider extends ContentProvider {
 		final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
-		
+		default:
+
 		}
 		return null;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
+		LOGV(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
+		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		final int match = sUriMatcher.match(uri);
+		boolean syncToNetwork = !CometParkContract
+				.hasCallerIsSyncAdapterParameter(uri);
+		// in our case, insert always from sync helper
+		switch (match) {
+		case SPOTS: {
+			db.insertOrThrow(Tables.SPOTS, null, values);
+			notifyChange(uri, syncToNetwork);
+			return Spots.buildSpotUri(values.getAsString(Spots.ID));
+		}
+		case LOTS: {
+			db.insert(Tables.LOTS, null, values);
+			notifyChange(uri, syncToNetwork);
+			return Lots.buildLotUri(values.getAsString(Lots.ID));
+		}
+		case LOCATIONS: {
+			db.insert(Tables.LOCATIONS, null, values);
+			notifyChange(uri, syncToNetwork);
+			return Locations.buildLocationUri(values.getAsString(Locations.ID));
+		}
+		default: {
+			throw new UnsupportedOperationException("Unknown uri: " + uri);
+		}
+		}
+	}
+	
+	@Override
+	public int update(Uri uri, ContentValues values, String selection,
+			String[] selectionArgs) {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -150,11 +184,46 @@ public class CometParkProvider extends ContentProvider {
 		return 0;
 	}
 
-	@Override
-	public int update(Uri uri, ContentValues values, String selection,
-			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+
+	private SelectionBuilder buildSimpleSelection(Uri uri) {
+		final SelectionBuilder builder = new SelectionBuilder();
+		final int match = sUriMatcher.match(uri);
+		switch (match) {
+		case SPOTS: {
+			return builder.table(Tables.SPOTS);
+		}
+		case SPOTS_ID: {
+			final String spotId = Spots.getSpotId(uri);
+			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
+		}
+		case LOTS: {
+			return builder.table(Tables.LOTS);
+		}
+		case LOTS_ID: {
+			final String lotId = Lots.getLotId(uri);
+			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
+		}
+		case LOCATIONS: {
+			return builder.table(Tables.LOCATIONS);
+		}
+		case LOCATIONS_ID: {
+			final String locationId = Locations.getLocationId(uri);
+			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
+					locationId);
+		}
+		default: {
+			throw new UnsupportedOperationException("Unknown uri for " + match
+					+ ": " + uri);
+		}
+		}
 	}
 
+	private void notifyChange(Uri uri, boolean syncToNetwork) {
+		LOGD(TAG, "syncToNetwork: " + syncToNetwork);
+		Context context = getContext();
+		context.getContentResolver().notifyChange(uri, null, syncToNetwork);
+
+		// Widgets can't register content observers so we refresh widgets
+		// separately.
+	}
 }
