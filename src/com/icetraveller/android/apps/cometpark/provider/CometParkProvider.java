@@ -1,5 +1,6 @@
 package com.icetraveller.android.apps.cometpark.provider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Locations;
@@ -9,8 +10,11 @@ import com.icetraveller.android.apps.cometpark.provider.CometParkDatabase.Tables
 import com.icetraveller.android.apps.cometpark.utils.SelectionBuilder;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -136,9 +140,12 @@ public class CometParkProvider extends ContentProvider {
 		final int match = sUriMatcher.match(uri);
 		switch (match) {
 		default:
-
+			final SelectionBuilder builder = buildExpandedSelection(uri, match);
+			Cursor cursor = builder.where(selection, selectionArgs).query(db,
+					projection, sortOrder);
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
+			return cursor;
 		}
-		return null;
 	}
 
 	@Override
@@ -170,20 +177,67 @@ public class CometParkProvider extends ContentProvider {
 		}
 		}
 	}
-	
+
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		LOGV(TAG, "update(uri=" + uri + ", values=" + values.toString() + ")");
+		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		final int match = sUriMatcher.match(uri);
+		// if (match == SEARCH_INDEX) {
+		// // update the search index
+		// // ScheduleDatabase.updateSessionSearchIndex(db);
+		// return 1;
+		// }
+		final SelectionBuilder builder = buildSimpleSelection(uri);
+		int retVal = builder.where(selection, selectionArgs).update(db, values);
+		boolean syncToNetwork = !CometParkContract
+				.hasCallerIsSyncAdapterParameter(uri);
+		notifyChange(uri, syncToNetwork);
+		return retVal;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		LOGV(TAG, "delete(uri=" + uri + ")");
+		// if (uri == ScheduleContract.BASE_CONTENT_URI) {
+		// // Handle whole database deletes (e.g. when signing out)
+		// deleteDatabase();
+		// notifyChange(uri, false);
+		// return 1;
+		// }
+
+		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		final SelectionBuilder builder = buildSimpleSelection(uri);
+		int retVal = builder.where(selection, selectionArgs).delete(db);
+		notifyChange(uri,
+				!CometParkContract.hasCallerIsSyncAdapterParameter(uri));
+		return retVal;
 	}
 
+	/**
+	 * Apply the given set of {@link ContentProviderOperation}, executing inside
+	 * a {@link SQLiteDatabase} transaction. All changes will be rolled back if
+	 * any single one fails.
+	 */
+	@Override
+	public ContentProviderResult[] applyBatch(
+			ArrayList<ContentProviderOperation> operations)
+			throws OperationApplicationException {
+		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final int numOperations = operations.size();
+			final ContentProviderResult[] results = new ContentProviderResult[numOperations];
+			for (int i = 0; i < numOperations; i++) {
+				results[i] = operations.get(i).apply(this, results, i);
+			}
+			db.setTransactionSuccessful();
+			return results;
+		} finally {
+			db.endTransaction();
+		}
+	}
 
 	private SelectionBuilder buildSimpleSelection(Uri uri) {
 		final SelectionBuilder builder = new SelectionBuilder();
@@ -217,6 +271,43 @@ public class CometParkProvider extends ContentProvider {
 		}
 		}
 	}
+	
+
+    /**
+     * Build an advanced {@link SelectionBuilder} to match the requested
+     * {@link Uri}. This is usually only used by {@link #query}, since it
+     * performs table joins useful for {@link Cursor} data.
+     */
+    private SelectionBuilder buildExpandedSelection(Uri uri, int match) {
+        final SelectionBuilder builder = new SelectionBuilder();
+        switch (match) {
+        case SPOTS: {
+        	return builder.table(Tables.SPOTS);
+        }
+        case SPOTS_ID: {
+        	final String spotId = Spots.getSpotId(uri);
+			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
+        }
+        case LOTS: {
+			return builder.table(Tables.LOTS);
+		}
+		case LOTS_ID: {
+			final String lotId = Lots.getLotId(uri);
+			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
+		}
+		case LOCATIONS: {
+			return builder.table(Tables.LOCATIONS);
+		}
+		case LOCATIONS_ID: {
+			final String locationId = Locations.getLocationId(uri);
+			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
+					locationId);
+		}
+        default: {
+            throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        }
+    }
 
 	private void notifyChange(Uri uri, boolean syncToNetwork) {
 		LOGD(TAG, "syncToNetwork: " + syncToNetwork);
