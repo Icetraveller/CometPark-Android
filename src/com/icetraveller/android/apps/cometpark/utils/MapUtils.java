@@ -22,6 +22,7 @@ public class MapUtils {
 
 	private static final String TILE_PATH = "lotstiles";
 	private static final String PREF_MYLOCATION_ENABLED = "map_mylocation_enabled";
+	public static final String SHOW_LOT = "show_lot";
 	private static final String TAG = LogUtils.makeLogTag(MapUtils.class);
 
 	private static float mDPI = -1.0f;
