@@ -36,7 +36,7 @@ public class RankFragment extends ListFragment implements
 				(ViewGroup) mEmptyView, true);
 		return rootView;
 	}
-
+ 
 	@Override
 	public void onViewCreated(final View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.app.SearchManager;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -106,27 +107,27 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume(){
 		super.onResume();
-		
-		final ContentResolver resolver = getContentResolver();
-        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-        try {
-        	SpotsHandler spotsHandler = new SpotsHandler(this); 
-        	String s = JSONHandler.parseResource(this, R.raw.request_spots_example);
-        	ArrayList sa =spotsHandler.parse(s);
-			batch.addAll(sa);
-			resolver.applyBatch(CometParkContract.CONTENT_AUTHORITY, batch);
-//        	batch.addAll(new LotsHandler(this).parse(
-//                    JSONHandler.parseResource(this, R.raw.request_lots_exmaple)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OperationApplicationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		
+//		final ContentResolver resolver = getContentResolver();
+//        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+//        try {
+//        	SpotsHandler spotsHandler = new SpotsHandler(this); 
+//        	String s = JSONHandler.parseResource(this, R.raw.request_spots_example);
+//        	ArrayList sa =spotsHandler.parse(s);
+//			batch.addAll(sa);
+//			resolver.applyBatch(CometParkContract.CONTENT_AUTHORITY, batch);
+////        	batch.addAll(new LotsHandler(this).parse(
+////                    JSONHandler.parseResource(this, R.raw.request_lots_exmaple)));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (RemoteException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (OperationApplicationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	@Override
@@ -220,8 +221,8 @@ public class HomeActivity extends BaseActivity implements
 			return true;
 
 		case R.id.menu_settings:
-			// TODO startActivity(new Intent(this, SettingsActivity.class));
-			return true;
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
 
 		}
 		return super.onOptionsItemSelected(item);

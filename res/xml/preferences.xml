@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <ListPreference
+        android:key="pref_permit_type"
+        android:summary="@string/pref_permit_type_summary"
+        android:title="@string/pref_permit_type_title" 
+        android:entries="@array/pref_permit_type_entry"
+    	android:entryValues="@array/pref_permit_type_entry_alias"
+    	android:defaultValue="2"
+        />
+    
+
+</PreferenceScreen>

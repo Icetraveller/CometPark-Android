@@ -52,7 +52,12 @@
         
         <activity
             android:name=".ui.MapActivity"
-            android:label="@string/app_name"/>
+            android:label="@string/title_map"/>
+        
+        <activity 
+            android:name=".ui.SettingsActivity"
+            android:label="@string/title_preference"
+            />
         
         <provider
             android:name=".provider.CometParkProvider"
