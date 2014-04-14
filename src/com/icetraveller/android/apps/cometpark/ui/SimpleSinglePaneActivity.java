@@ -16,7 +16,7 @@
 
 package com.icetraveller.android.apps.cometpark.ui;
 
-import com.google.android.apps.iosched.R;
+import com.icetraveller.android.apps.cometpark.R;
 
 import android.content.Intent;
 import android.os.Bundle;
