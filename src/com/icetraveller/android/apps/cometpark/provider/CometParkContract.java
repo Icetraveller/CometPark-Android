@@ -11,7 +11,8 @@ public final class CometParkContract {
 		String ID = "spot_id";
 		String LOT = "spot_lot";
 		String TYPE = "spot_type";
-		String LOCATIONID = "spot_location_id";
+		String LAT = "spot_lat";
+		String LNG = "spot_lng";
 		String STATUS = "spot_status";
 	}
 
@@ -27,11 +28,11 @@ public final class CometParkContract {
 		String STATUS = "lot_status";
 	}
 
-	interface LocationColumns {
-		String ID = "location_id";
-		String LATITUDE = "latitude";
-		String LONGITUDE = "longitude";
-	}
+//	interface LocationColumns {
+//		String ID = "location_id";
+//		String LATITUDE = "latitude";
+//		String LONGITUDE = "longitude";
+//	}
 
 	public static final String CONTENT_AUTHORITY = "com.icetraveller.android.apps.cometpark";
 	public static final Uri BASE_CONTENT_URI = Uri.parse("content://"
@@ -100,37 +101,37 @@ public final class CometParkContract {
         }
 	}
 	
-	public static class Locations implements LocationColumns, BaseColumns{
-		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
-                .appendPath(PATH_LOCATIONS).build();
-		
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.cometpark.location";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.cometpark.location";
-        
-        /** Default "ORDER BY" clause. */ 
-        public static final String DEFAULT_SORT = LocationColumns.ID + " ASC";
-        
-        /** Build {@link Uri} for requested spot. BETA TODO*/
-        public static Uri buildLocationUri(String locationId) {
-            return CONTENT_URI.buildUpon()
-                    .appendPath(String.valueOf(locationId)).build();
-        }
-        
-        /** Read {@link #LOCATIONS_ID} from {@link Locations} {@link Uri}. */
-        public static String getLocationId(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-	}
+//	public static class Locations implements LocationColumns, BaseColumns{
+//		public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+//                .appendPath(PATH_LOCATIONS).build();
+//		
+//		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.cometpark.location";
+//        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.cometpark.location";
+//        
+//        /** Default "ORDER BY" clause. */ 
+//        public static final String DEFAULT_SORT = LocationColumns.ID + " ASC";
+//        
+//        /** Build {@link Uri} for requested spot. BETA TODO*/
+//        public static Uri buildLocationUri(String locationId) {
+//            return CONTENT_URI.buildUpon()
+//                    .appendPath(String.valueOf(locationId)).build();
+//        }
+//        
+//        /** Read {@link #LOCATIONS_ID} from {@link Locations} {@link Uri}. */
+//        public static String getLocationId(Uri uri) {
+//            return uri.getPathSegments().get(1);
+//        }
+//	}
 	
-	public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
-        return uri.buildUpon().appendQueryParameter(
-                ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();
-    }
-
-    public static boolean hasCallerIsSyncAdapterParameter(Uri uri) {
-        return TextUtils.equals("true",
-                uri.getQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER));
-    }
+//	public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
+//        return uri.buildUpon().appendQueryParameter(
+//                ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();
+//    }
+//
+//    public static boolean hasCallerIsSyncAdapterParameter(Uri uri) {
+//        return TextUtils.equals("true",
+//                uri.getQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER));
+//    }
 	
 	private CometParkContract(){
 	}

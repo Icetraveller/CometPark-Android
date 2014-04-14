@@ -3,6 +3,7 @@ package com.icetraveller.android.apps.cometpark.ui;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.icetraveller.android.apps.cometpark.R;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -81,8 +83,8 @@ public class RankFragment extends ListFragment implements
 	            @Override
 	            public void onClick(View view) {
 //	                // Launch map of conference venue
-//	                startActivity(new Intent(context,
-//	                        UIUtils.getMapActivityClass(getActivity())));
+	                startActivity(new Intent(context,
+	                        UIUtils.getMapActivityClass(getActivity())));
 	            }
 	        });
 

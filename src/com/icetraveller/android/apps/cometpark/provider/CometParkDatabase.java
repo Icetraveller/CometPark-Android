@@ -1,7 +1,5 @@
 package com.icetraveller.android.apps.cometpark.provider;
 
-import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LocationColumns;
-import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Locations;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LotColumns;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.SpotColumns;
 
@@ -27,12 +25,12 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 	 */
 	interface Tables{
 		String SPOTS = "spots";
-		String LOCATIONS = "locations";
+//		String LOCATIONS = "locations";
 		String LOTS = "lots";
 	}
 	
 	private interface References {
-		String LOCATION_ID = "REFERENCES " + Tables.LOCATIONS + "(" + Locations.ID + ")";
+//		String LOCATION_ID = "REFERENCES " + Tables.LOCATIONS + "(" + Locations.ID + ")";
 	}
 
 	
@@ -48,7 +46,8 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 				+ SpotColumns.ID + " TEXT NOT NULL,"
 				+ SpotColumns.LOT + " TEXT NOT NULL,"
 				+ SpotColumns.TYPE + " INTEGER NOT NULL,"
-				+ SpotColumns.LOCATIONID + " INTEGER NOT NULL,"
+				+ SpotColumns.LAT + " DOUBLE NOT NULL,"
+				+ SpotColumns.LNG + " DOUBLE NOT NULL,"
 				+ SpotColumns.STATUS + " INTEGER NOT NULL,"
 				+ "UNIQUE (" + SpotColumns.ID+ ") ON CONFLICT REPLACE)");
 		db.execSQL("CREATE TABLE "+Tables.LOTS+ " ("
@@ -58,17 +57,17 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 				+ LotColumns.STATUS + " INTEGER NOT NULL,"
 				+ LotColumns.MAP_TILE_FILE + " TEXT NOT NULL,"
 				+ LotColumns.MAP_TILE_URL + " TEXT NOT NULL,"
-				+ LotColumns.LOCATION_TOP_LEFT + " INTEGER " + References.LOCATION_ID +","
-				+ LotColumns.LOCATION_TOP_RIGHT + " INTEGER " + References.LOCATION_ID +","
-				+ LotColumns.LOCATION_BOTTOM_LEFT + " INTEGER " + References.LOCATION_ID +","
-				+ LotColumns.LOCATION_BOTTOM_RIGHT + " INTEGER " + References.LOCATION_ID +","
+				+ LotColumns.LOCATION_TOP_LEFT + " TEXT NOT NULL, "
+				+ LotColumns.LOCATION_TOP_RIGHT + " TEXT NOT NULL, "
+				+ LotColumns.LOCATION_BOTTOM_LEFT + " TEXT NOT NULL, "
+				+ LotColumns.LOCATION_BOTTOM_RIGHT + " TEXT NOT NULL, "
 				+ "UNIQUE (" + LotColumns.ID+ ") ON CONFLICT REPLACE)");
-		db.execSQL("CREATE TABLE "+Tables.LOCATIONS+ " ("
-				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ LocationColumns.ID + " TEXT NOT NULL,"
-				+LocationColumns.LATITUDE + " DOUBLE NOT NULL,"
-				+LocationColumns.LONGITUDE + " DOUBLE NOT NULL,"
-				+ "UNIQUE (" + LocationColumns.ID+ ") ON CONFLICT REPLACE)");
+//		db.execSQL("CREATE TABLE "+Tables.LOCATIONS+ " ("
+//				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+//				+ LocationColumns.ID + " TEXT NOT NULL,"
+//				+LocationColumns.LATITUDE + " DOUBLE NOT NULL,"
+//				+LocationColumns.LONGITUDE + " DOUBLE NOT NULL,"
+//				+ "UNIQUE (" + LocationColumns.ID+ ") ON CONFLICT REPLACE)");
 	}
 
 	@Override

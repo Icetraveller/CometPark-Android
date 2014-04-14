@@ -3,7 +3,6 @@ package com.icetraveller.android.apps.cometpark.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Locations;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Lots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkDatabase.Tables;
@@ -34,7 +33,7 @@ public class CometParkProvider extends ContentProvider {
 	private static final int SPOTS_ID = 101;
 	private static final int SPOTS_ID_LOT = 102;
 	private static final int SPOTS_ID_TYPE = 103;
-	private static final int SPOTS_ID_LOCATION_ID = 104;
+//	private static final int SPOTS_ID_LOCATION_ID = 104;
 	private static final int SPOTS_ID_STATUS = 105;
 
 	private static final int LOTS = 200;
@@ -71,7 +70,6 @@ public class CometParkProvider extends ContentProvider {
 		matcher.addURI(authority, "spots/*", SPOTS_ID);
 		matcher.addURI(authority, "spots/*/lot", SPOTS_ID_LOT);
 		matcher.addURI(authority, "spots/*/type", SPOTS_ID_TYPE);
-		matcher.addURI(authority, "spots/*/location_id", SPOTS_ID_LOCATION_ID);
 		matcher.addURI(authority, "spots/*/status", SPOTS_ID_STATUS);
 
 		matcher.addURI(authority, "lots", LOTS);
@@ -122,10 +120,10 @@ public class CometParkProvider extends ContentProvider {
 			return Lots.CONTENT_TYPE;
 		case LOTS_ID:
 			return Lots.CONTENT_ITEM_TYPE;
-		case LOCATIONS:
-			return Locations.CONTENT_TYPE;
-		case LOCATIONS_ID:
-			return Locations.CONTENT_ITEM_TYPE;
+//		case LOCATIONS:
+//			return Locations.CONTENT_TYPE;
+//		case LOCATIONS_ID:
+//			return Locations.CONTENT_ITEM_TYPE;
 		default:
 			throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -153,25 +151,23 @@ public class CometParkProvider extends ContentProvider {
 		LOGV(TAG, "insert(uri=" + uri + ", values=" + values.toString() + ")");
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final int match = sUriMatcher.match(uri);
-		boolean syncToNetwork = !CometParkContract
-				.hasCallerIsSyncAdapterParameter(uri);
 		// in our case, insert always from sync helper
 		switch (match) {
 		case SPOTS: {
 			db.insertOrThrow(Tables.SPOTS, null, values);
-			notifyChange(uri, syncToNetwork);
+			notifyChange(uri);
 			return Spots.buildSpotUri(values.getAsString(Spots.ID));
 		}
 		case LOTS: {
 			db.insert(Tables.LOTS, null, values);
-			notifyChange(uri, syncToNetwork);
+			notifyChange(uri);
 			return Lots.buildLotUri(values.getAsString(Lots.ID));
 		}
-		case LOCATIONS: {
-			db.insert(Tables.LOCATIONS, null, values);
-			notifyChange(uri, syncToNetwork);
-			return Locations.buildLocationUri(values.getAsString(Locations.ID));
-		}
+//		case LOCATIONS: {
+//			db.insert(Tables.LOCATIONS, null, values);
+//			notifyChange(uri);
+//			return Locations.buildLocationUri(values.getAsString(Locations.ID));
+//		}
 		default: {
 			throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -191,9 +187,7 @@ public class CometParkProvider extends ContentProvider {
 		// }
 		final SelectionBuilder builder = buildSimpleSelection(uri);
 		int retVal = builder.where(selection, selectionArgs).update(db, values);
-		boolean syncToNetwork = !CometParkContract
-				.hasCallerIsSyncAdapterParameter(uri);
-		notifyChange(uri, syncToNetwork);
+		notifyChange(uri);
 		return retVal;
 	}
 
@@ -210,8 +204,7 @@ public class CometParkProvider extends ContentProvider {
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final SelectionBuilder builder = buildSimpleSelection(uri);
 		int retVal = builder.where(selection, selectionArgs).delete(db);
-		notifyChange(uri,
-				!CometParkContract.hasCallerIsSyncAdapterParameter(uri));
+		notifyChange(uri);
 		return retVal;
 	}
 
@@ -257,14 +250,14 @@ public class CometParkProvider extends ContentProvider {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
 		}
-		case LOCATIONS: {
-			return builder.table(Tables.LOCATIONS);
-		}
-		case LOCATIONS_ID: {
-			final String locationId = Locations.getLocationId(uri);
-			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
-					locationId);
-		}
+//		case LOCATIONS: {
+//			return builder.table(Tables.LOCATIONS);
+//		}
+//		case LOCATIONS_ID: {
+//			final String locationId = Locations.getLocationId(uri);
+//			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
+//					locationId);
+//		}
 		default: {
 			throw new UnsupportedOperationException("Unknown uri for " + match
 					+ ": " + uri);
@@ -295,24 +288,23 @@ public class CometParkProvider extends ContentProvider {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
 		}
-		case LOCATIONS: {
-			return builder.table(Tables.LOCATIONS);
-		}
-		case LOCATIONS_ID: {
-			final String locationId = Locations.getLocationId(uri);
-			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
-					locationId);
-		}
+//		case LOCATIONS: {
+//			return builder.table(Tables.LOCATIONS);
+//		}
+//		case LOCATIONS_ID: {
+//			final String locationId = Locations.getLocationId(uri);
+//			return builder.table(Tables.LOCATIONS).where(Locations.ID + "=?",
+//					locationId);
+//		}
         default: {
             throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         }
     }
 
-	private void notifyChange(Uri uri, boolean syncToNetwork) {
-		LOGD(TAG, "syncToNetwork: " + syncToNetwork);
+	private void notifyChange(Uri uri) {
 		Context context = getContext();
-		context.getContentResolver().notifyChange(uri, null, syncToNetwork);
+		context.getContentResolver().notifyChange(uri, null);
 
 		// Widgets can't register content observers so we refresh widgets
 		// separately.

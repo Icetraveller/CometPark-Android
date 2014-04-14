@@ -1,6 +1,11 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import android.app.SearchManager;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +19,10 @@ import android.view.MenuItem;
 import android.widget.SearchView;
 
 import com.icetraveller.android.apps.cometpark.R;
+import com.icetraveller.android.apps.cometpark.io.JSONHandler;
+import com.icetraveller.android.apps.cometpark.io.LotsHandler;
+import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
+
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 /**
@@ -89,6 +98,25 @@ public class HomeActivity extends BaseActivity implements
         if (savedInstanceState == null) {
 //            registerGCMClient();TODO
         }
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		
+//		final ContentResolver resolver = getContentResolver();
+//        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+//        try {
+////        	SpotsHandler spotsHandler = new SpotsHandler(this); 
+////        	String s = JSONHandler.parseResource(this, R.raw.request_spots_example);
+////        	ArrayList sa =spotsHandler.parse(s);
+////			batch.addAll(sa);
+//        	batch.addAll(new LotsHandler(this).parse(
+//                    JSONHandler.parseResource(this, R.raw.request_lots_exmaple)));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	@Override
