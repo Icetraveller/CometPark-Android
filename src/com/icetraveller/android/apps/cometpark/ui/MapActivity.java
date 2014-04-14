@@ -10,21 +10,11 @@ import android.support.v4.app.Fragment;
 public class MapActivity extends SimpleSinglePaneActivity implements
 		MapFragment.Callbacks {
 	
-	private String lotId = "";
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (isFinishing()) {
-			return;
-		}
-		
-		Intent intent = getIntent();
-		lotId = intent.getStringExtra(MapUtils.SHOW_LOT);
-	}
 	
 	@Override
 	protected Fragment onCreatePane() {
+		Intent intent = getIntent();
+		String lotId = intent.getStringExtra(MapUtils.SHOW_LOT);
 		MapFragment mapFragment = new MapFragment();
 		Bundle b = new Bundle();
 		b.putString(MapUtils.SHOW_LOT, lotId);

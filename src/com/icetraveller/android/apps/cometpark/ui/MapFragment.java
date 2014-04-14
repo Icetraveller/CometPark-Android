@@ -1,5 +1,7 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -28,10 +30,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.utils.App;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
+import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -48,28 +53,29 @@ public class MapFragment extends SupportMapFragment implements
 	private static final String SHOW_ALL = "show_all";
 
 	// currently displayed lot
+	private String INITIAL_LOT = "0";
 	private String mLot = "0";
 	private String[] mLots;
 
 	private static final String TAG = makeLogTag(MapFragment.class);
 
 	// Tile Providers
-	private TileProvider[] mTileProviders;
-	private TileOverlay[] mTileOverlays;
+	private HashMap<String, TileProvider> mTileProviders;
+	private HashMap<String, TileOverlay> mTileOverlays;
 
 	private int numberOfLots = 1;
 
 	// Markers stored by id
 	private HashMap<String, MarkerModel> mMarkers = null;
-	
-	// Markers stored by floor
-    private HashMap<String,ArrayList<Marker>> mMarkersLot = null;
 
-	private boolean mOverlaysLoaded = false;
+	// Markers stored by floor
+	private HashMap<String, ArrayList<Marker>> mMarkersLot = null;
+
+	private boolean mLotsLoaded = false;
 	private boolean mMarkersLoaded = false;
-	
+
 	// Show markers at default zoom level
-    private boolean mShowMarkers = true;
+	private boolean mShowMarkers = true;
 
 	// Cached size of view
 	private int mWidth, mHeight;
@@ -146,6 +152,7 @@ public class MapFragment extends SupportMapFragment implements
 
 		LoaderManager lm = getActivity().getSupportLoaderManager();
 		lm.initLoader(SpotsQuery._TOKEN, null, this);
+		
 		lm.initLoader(LotsQuery._TOKEN, null, this);
 
 		return v;
@@ -172,19 +179,39 @@ public class MapFragment extends SupportMapFragment implements
 		}
 
 		// setup tile provider arrays
-		mTileProviders = new TileProvider[numberOfLots];
-		mTileOverlays = new TileOverlay[numberOfLots];
+		mTileProviders = new HashMap<String, TileProvider>();
+		mTileOverlays = new HashMap<String, TileOverlay>();
 
 		mMarkers = new HashMap<String, MarkerModel>();
-		mMarkersLot = new HashMap<String,ArrayList<Marker>>();
+		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
 		// initialise floor marker lists
-        for(String s: mLots){
-        	mMarkersLot.put(s, new ArrayList<Marker>());
-        }
+		for (String s : mLots) {
+			mMarkersLot.put(s, new ArrayList<Marker>());
+		}
+	}
+
+	private void enableLot() {
+		showLot(INITIAL_LOT);
 	}
 	
-	private void enableLot(){
-		
+	private void showLot(String lot){
+		if(!mLot.equals(lot)){
+			// hide old overlay
+			mTileOverlays.get(lot).setVisible(false);
+			for (Marker m : mMarkersLot.get(lot)) {
+                m.setVisible(false);
+            }
+			
+			// show the lot overlay
+            if (mTileOverlays.get(lot) != null) {
+                mTileOverlays.get(lot).setVisible(true);
+            }
+            
+         // show all markers
+            for (Marker m : mMarkersLot.get(lot)) {
+                m.setVisible(mShowMarkers);
+            }
+		}
 	}
 
 	@Override
@@ -196,8 +223,11 @@ public class MapFragment extends SupportMapFragment implements
 					null, null, null);
 		}
 		case LotsQuery._TOKEN: {
-			Uri uri = CometParkContract.Lots.buildLotUri(mLot);//TODO currently I support only one
-			return new CursorLoader(getActivity(), uri, LotsQuery.PROJECTION, null, null, null);
+			Uri uri = CometParkContract.Lots.buildLotUri(mLot);// TODO currently
+																// I support
+																// only one
+			return new CursorLoader(getActivity(), uri, LotsQuery.PROJECTION,
+					null, null, null);
 		}
 		}
 		return null;
@@ -227,8 +257,8 @@ public class MapFragment extends SupportMapFragment implements
 	public void onCameraChange(CameraPosition cameraPosition) {
 		mShowMarkers = cameraPosition.zoom >= 18;
 		for (Marker m : mMarkersLot.get(mLot)) {
-            m.setVisible(mShowMarkers);
-        }
+			m.setVisible(mShowMarkers);
+		}
 	}
 
 	@Override
@@ -246,9 +276,10 @@ public class MapFragment extends SupportMapFragment implements
 	private interface SpotsQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { CometParkContract.Spots.ID,CometParkContract.Spots.LOT,
-				CometParkContract.Spots.STATUS, CometParkContract.Spots.TYPE,
-				CometParkContract.Spots.LAT, CometParkContract.Spots.LNG };
+		String[] PROJECTION = { CometParkContract.Spots.ID,
+				CometParkContract.Spots.LOT, CometParkContract.Spots.STATUS,
+				CometParkContract.Spots.TYPE, CometParkContract.Spots.LAT,
+				CometParkContract.Spots.LNG };
 
 		int SPOT_ID = 0;
 		int SPOT_LOT = 1;
@@ -257,19 +288,17 @@ public class MapFragment extends SupportMapFragment implements
 		int SPOT_LAT = 4;
 		int SPOT_LNG = 5;
 	}
-	
+
 	private interface LotsQuery {
 		int _TOKEN = 0x2;
-		String[] PROJECTION = { 
-				CometParkContract.Lots.ID,
+		String[] PROJECTION = { CometParkContract.Lots.ID,
 				CometParkContract.Lots.NAME,
 				CometParkContract.Lots.MAP_TILE_FILE,
 				CometParkContract.Lots.STATUS,
 				CometParkContract.Lots.LOCATION_TOP_LEFT,
 				CometParkContract.Lots.LOCATION_TOP_RIGHT,
 				CometParkContract.Lots.LOCATION_BOTTOM_LEFT,
-				CometParkContract.Lots.LOCATION_BOTTOM_RIGHT
-		};
+				CometParkContract.Lots.LOCATION_BOTTOM_RIGHT };
 		int LOT_ID = 0;
 		int LOT_NAME = 1;
 		int LOT_MAP_TILE_FILE = 2;
@@ -278,7 +307,7 @@ public class MapFragment extends SupportMapFragment implements
 		int LOT_LOCATION_TOP_RIGHT = 5;
 		int LOT_LOCATION_BOTTOM_LEFT = 6;
 		int LOT_LOCATION_BOTTOM_RIGHT = 7;
-		
+
 	}
 
 	// loaders
@@ -293,7 +322,7 @@ public class MapFragment extends SupportMapFragment implements
 				int permitType = cursor.getInt(SpotsQuery.SPOT_TYPE);
 				double lat = cursor.getDouble(SpotsQuery.SPOT_LAT);
 				double lng = cursor.getDouble(SpotsQuery.SPOT_LNG);
-				if (status == 1) {
+				if (status == App.STATUS_OCCUPIED) {
 					// the spot is occupied, don't display anything
 					// but may be display depends on user settings
 				} else {
@@ -303,7 +332,7 @@ public class MapFragment extends SupportMapFragment implements
 						icon = BitmapDescriptorFactory
 								.fromResource(R.drawable.marker_test);
 					}
-					
+
 					// add marker to map
 					if (icon != null) {
 						Marker m = mMap.addMarker(new MarkerOptions()
@@ -312,8 +341,8 @@ public class MapFragment extends SupportMapFragment implements
 								.visible(false));
 						MarkerModel model = new MarkerModel(spotId, permitType,
 								permitType, m);
-						 mMarkersLot.get(lotId).add(m);
-						 mMarkers.put(spotId, model);
+						mMarkersLot.get(lotId).add(m);
+						mMarkers.put(spotId, model);
 					}
 				}
 				cursor.moveToNext();
@@ -321,8 +350,60 @@ public class MapFragment extends SupportMapFragment implements
 			mMarkersLoaded = true;
 			enableLot();
 		}
+	}
+
+	private void onLotsLoadComplete(Cursor cursor) {
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				// get data
+				String lotId = cursor.getString(LotsQuery.LOT_ID);
+				String name = cursor.getString(LotsQuery.LOT_NAME);
+				String file = cursor.getString(LotsQuery.LOT_MAP_TILE_FILE);
+				int status = cursor.getInt(LotsQuery.LOT_STATUS);
+				if (status == App.STATUS_OCCUPIED) {
+					//the lot is reserved
+				} else {
+					String[] topLeft = cursor.getString(
+							LotsQuery.LOT_LOCATION_TOP_LEFT).split(",");
+					String[] topRight = cursor.getString(
+							LotsQuery.LOT_LOCATION_TOP_RIGHT).split(",");
+					String[] bottomLeft = cursor.getString(
+							LotsQuery.LOT_LOCATION_BOTTOM_LEFT).split(",");
+					String[] bottomRight = cursor.getString(
+							LotsQuery.LOT_LOCATION_BOTTOM_RIGHT).split(",");
+
+					File f = MapUtils.getTileFile(getActivity()
+							.getApplicationContext(), file);
+					if (f != null) {
+						addTileProvider(lotId, f);
+					}
+				}
+				cursor.moveToNext();
+			}
+			mLotsLoaded = true;
+	        enableLot();
+		}
 
 	}
+	
+	void addTileProvider(String lot, File f) {
+        if (!f.exists()) {
+            return;
+        }
+        TileProvider provider;
+        try {
+            provider = new SVGTileProvider(f, mDPI);
+        } catch (IOException e) {
+            LOGD(TAG, "Could not create Tile Provider.");
+            e.printStackTrace();
+            return;
+        }
+        TileOverlayOptions tileOverlay = new TileOverlayOptions()
+                .tileProvider(provider).visible(false);
+        mTileProviders.put(lot, provider);
+        mTileOverlays.put(lot, mMap.addTileOverlay(tileOverlay));
+    }
 
 	/**
 	 * A structure to store information about a Marker.

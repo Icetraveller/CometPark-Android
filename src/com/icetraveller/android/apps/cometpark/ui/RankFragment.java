@@ -76,7 +76,7 @@ public class RankFragment extends ListFragment implements
 			@Override
 			public void onClick(View view) {
 				int viewId = view.getId();
-				Intent intent = new Intent(context, UIUtils.getMapActivityClass(getActivity()));
+				Intent intent = new Intent(getActivity(), UIUtils.getMapActivityClass(context));
 //				intent.putExtra(MapUtils.SHOW_LOT, viewId);
 				intent.putExtra(MapUtils.SHOW_LOT, "0");
 				startActivity(intent);

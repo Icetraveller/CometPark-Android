@@ -44,7 +44,7 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 		db.execSQL("CREATE TABLE "+Tables.SPOTS+ " ("
 				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ SpotColumns.ID + " TEXT NOT NULL,"
-				+ SpotColumns.LOT + " TEXT NOT NULL,"
+				+ SpotColumns.LOT + " INTEGER NOT NULL,"
 				+ SpotColumns.TYPE + " INTEGER NOT NULL,"
 				+ SpotColumns.LAT + " DOUBLE NOT NULL,"
 				+ SpotColumns.LNG + " DOUBLE NOT NULL,"
