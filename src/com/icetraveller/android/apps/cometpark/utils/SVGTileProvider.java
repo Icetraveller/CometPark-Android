@@ -1,6 +1,5 @@
 package com.icetraveller.android.apps.cometpark.utils;
 
-
 import java.io.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -33,28 +32,33 @@ public class SVGTileProvider implements TileProvider {
 
 	private byte[] mSvgFile;
 
-	public SVGTileProvider(File file, float dpi) throws IOException {
+	private double[] coordinates;
+
+	public SVGTileProvider(File file, float dpi, double[] acoordinates)
+			throws IOException {
 		mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
 		mDimension = BASE_TILE_SIZE * mScale;
+		this.coordinates = acoordinates;
 
-        mPool = new TileGeneratorPool(POOL_MAX_SIZE);
+		mPool = new TileGeneratorPool(POOL_MAX_SIZE);
 
-        mSvgFile = readFile(file);
-		RectF limits = SVGParser.getSVGFromInputStream(new ByteArrayInputStream(mSvgFile)).getLimits();
+		mSvgFile = readFile(file);
+		RectF limits = SVGParser.getSVGFromInputStream(
+				new ByteArrayInputStream(mSvgFile)).getLimits();
 
-        mBaseMatrix = new Matrix();
-        mBaseMatrix.setPolyToPoly(
-                new float[]{
-                		limits.width(), 0,
-                        0, limits.height(),
-                        limits.width(), limits.height()
-                }, 0,
-                new float[]{
-                		59.20057102222222f, 103.1282771843786f,
-                		59.200258133333335f, 103.1287977144785f,
-                		59.200571733333334f, 103.1288011055422f
-                }, 0, 3);
-    }
+		mBaseMatrix = new Matrix();
+		mBaseMatrix.setPolyToPoly(new float[] { limits.width(), 0, // topright23
+				0, limits.height(), // bottom left45
+				limits.width(), limits.height() // bottom right67
+				}, 0, new float[] {
+						// 59.20057102222222f, 103.1282771843786f,
+						// 59.200258133333335f, 103.1287977144785f,
+						// 59.200571733333334f, 103.1288011055422f
+						(float) coordinates[2], (float) coordinates[3],
+						(float) coordinates[4], (float) coordinates[5],
+						(float) coordinates[6], (float) coordinates[7] 
+								}, 0, 3);
+	}
 
 	@Override
 	public Tile getTile(int x, int y, int zoom) {
@@ -96,9 +100,11 @@ public class SVGTileProvider implements TileProvider {
 		private ByteArrayOutputStream mStream;
 
 		public TileGenerator() {
-			mBitmap = Bitmap.createBitmap(mDimension, mDimension, Bitmap.Config.ARGB_8888);
+			mBitmap = Bitmap.createBitmap(mDimension, mDimension,
+					Bitmap.Config.ARGB_8888);
 			mStream = new ByteArrayOutputStream(mDimension * mDimension * 4);
-            mSvg = SVGParser.getSVGFromInputStream(new ByteArrayInputStream(mSvgFile));
+			mSvg = SVGParser.getSVGFromInputStream(new ByteArrayInputStream(
+					mSvgFile));
 		}
 
 		public byte[] getTileImageData(int x, int y, int zoom) {
@@ -141,19 +147,19 @@ public class SVGTileProvider implements TileProvider {
 		}
 	}
 
-    private static byte[] readFile(File file) throws IOException {
-        InputStream in = new BufferedInputStream(new FileInputStream(file));
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	private static byte[] readFile(File file) throws IOException {
+		InputStream in = new BufferedInputStream(new FileInputStream(file));
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            byte[] buffer = new byte[1024];
-            int n;
-            while ((n = in.read(buffer)) != -1) {
-                baos.write(buffer, 0, n);
-            }
-            return baos.toByteArray();
-        } finally {
-            in.close();
-        }
-    }
+			byte[] buffer = new byte[1024];
+			int n;
+			while ((n = in.read(buffer)) != -1) {
+				baos.write(buffer, 0, n);
+			}
+			return baos.toByteArray();
+		} finally {
+			in.close();
+		}
+	}
 }

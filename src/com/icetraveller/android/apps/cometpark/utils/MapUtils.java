@@ -201,4 +201,20 @@ public class MapUtils {
 		// System.out.println(lng*256 + ", " + lat*256);
 		return new double[] { lng * 256, lat * 256 };
 	}
+
+	public static double[] stringsToDoubles(String[]... args){
+		if(args.length != 4){
+			//wrong
+		}
+		double[] result = new double[8];
+		int i = 0;
+		
+		for(String[] strings: args){
+			result[i] = Double.parseDouble(strings[0]);
+			result[i+1] = Double.parseDouble(strings[1]);
+			i+=2;
+		}
+		return result;
+	}
+	
 }

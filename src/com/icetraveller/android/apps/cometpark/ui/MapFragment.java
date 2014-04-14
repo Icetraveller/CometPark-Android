@@ -376,7 +376,8 @@ public class MapFragment extends SupportMapFragment implements
 					File f = MapUtils.getTileFile(getActivity()
 							.getApplicationContext(), file);
 					if (f != null) {
-						addTileProvider(lotId, f);
+						double[] coordinates = MapUtils.stringsToDoubles(topLeft,topRight,bottomLeft,bottomRight);
+						addTileProvider(lotId, f, coordinates);
 					}
 				}
 				cursor.moveToNext();
@@ -387,13 +388,13 @@ public class MapFragment extends SupportMapFragment implements
 
 	}
 	
-	void addTileProvider(String lot, File f) {
+	void addTileProvider(String lot, File f, double[] coordinates) {
         if (!f.exists()) {
             return;
         }
         TileProvider provider;
         try {
-            provider = new SVGTileProvider(f, mDPI);
+            provider = new SVGTileProvider(f, mDPI, coordinates);
         } catch (IOException e) {
             LOGD(TAG, "Could not create Tile Provider.");
             e.printStackTrace();
