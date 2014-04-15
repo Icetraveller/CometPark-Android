@@ -21,6 +21,11 @@ public class App {
 	public static final int TYPE_CREATE_LOTS = 4;
 	public static final int TYPE_DELETE_SPOTS = 5;
 	public static final int TYPE_DELETE_LOTS = 6;
+	public static final int TYPE_REQUEST_SPOTS_IN_LOT = 7; 
+	public static final int TYPE_REQUEST_LOTS_INFO = 8; //for app to create
+	public static final int TYPE_REQUEST_SPOTS_INFO = 9; // for app to create
+	public static final int TYPE_REQUEST_LOTS_STATUS = 10; // exp 30/60
+	public static final int _TYPE = 99;
 	
 	public static final String JSON_TYPE = "type";
 	public static final String JSON_CONTROLLER_ID = "controllerId";
@@ -42,5 +47,7 @@ public class App {
 	public static final String JSON_KEY_TOP_RIGHT = "topRight";
 	public static final String JSON_KEY_BOTTOM_LEFT = "bottomLeft";
 	public static final String JSON_KEY_BOTTOM_RIGHT = "bottomRight";
+	
+	public static final String SERVER_URL = "http://2-dot-cometparking.appspot.com/";
 
 }

@@ -14,6 +14,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,17 +46,17 @@ public class MapFragment extends SupportMapFragment implements
 		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
 		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor> {
 	// Initial camera position
-	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.986097,
-			-96.749417);
+	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.986078,
+			-96.752977);
 	private static final LatLng TEST_SPOT = new LatLng(32.985990, -96.749650);
 	private static final LatLng TEST_SPOT2 = new LatLng(32.985960, -96.749650);
-	private static final float CAMERA_ZOOM = 19f;
+	private static final float CAMERA_ZOOM = 18f;
 
 	private static final String SHOW_ALL = "show_all";
 
 	// currently displayed lot
 	private String INITIAL_LOT = "0";
-	private String mLot = "0";
+	private String currentLot = "";
 	private String[] mLots;
 
 	private static final String TAG = makeLogTag(MapFragment.class);
@@ -75,7 +77,7 @@ public class MapFragment extends SupportMapFragment implements
 	private boolean mMarkersLoaded = false;
 
 	// Show markers at default zoom level
-	private boolean mShowMarkers = true;
+	private boolean mShow = true;
 
 	// Cached size of view
 	private int mWidth, mHeight;
@@ -151,9 +153,9 @@ public class MapFragment extends SupportMapFragment implements
 		}
 
 		LoaderManager lm = getActivity().getSupportLoaderManager();
-		lm.initLoader(SpotsQuery._TOKEN, null, this);
-		
 		lm.initLoader(LotsQuery._TOKEN, null, this);
+		lm.initLoader(SpotsQuery._TOKEN, null, this);
+
 
 		return v;
 	}
@@ -191,26 +193,34 @@ public class MapFragment extends SupportMapFragment implements
 	}
 
 	private void enableLot() {
-		showLot(INITIAL_LOT);
+		if (mLotsLoaded && mMarkersLoaded && mShow)
+			showLot(INITIAL_LOT);
 	}
-	
-	private void showLot(String lot){
-		if(!mLot.equals(lot)){
+
+	private void showLot(String lot) {
+		if (!currentLot.equals(lot)) {
 			// hide old overlay
 			mTileOverlays.get(lot).setVisible(false);
 			for (Marker m : mMarkersLot.get(lot)) {
-                m.setVisible(false);
-            }
-			
+				m.setVisible(false);
+			}
+			currentLot = lot;
 			// show the lot overlay
-            if (mTileOverlays.get(lot) != null) {
-                mTileOverlays.get(lot).setVisible(true);
-            }
-            
-         // show all markers
-            for (Marker m : mMarkersLot.get(lot)) {
-                m.setVisible(mShowMarkers);
-            }
+			if (mTileOverlays.get(lot) != null) {
+				mTileOverlays.get(lot).setVisible(true);
+			}
+
+			// show all markers
+			showMarker(mShow);
+		}
+	}
+
+	private void disableLot() {
+		if (currentLot.equals(currentLot)) {
+			// hide the lot overlay
+			if (mTileOverlays.get(currentLot) != null) {
+				mTileOverlays.get(currentLot).setVisible(false);
+			}
 		}
 	}
 
@@ -218,14 +228,16 @@ public class MapFragment extends SupportMapFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		switch (id) {
 		case SpotsQuery._TOKEN: {
-			Uri uri = CometParkContract.Spots.buildUri();
+//			Uri uri = CometParkContract.Spots.buildSpotsInLot(INITIAL_LOT);
+			Uri uri = CometParkContract.Spots.CONTENT_URI;
 			return new CursorLoader(getActivity(), uri, SpotsQuery.PROJECTION,
 					null, null, null);
 		}
 		case LotsQuery._TOKEN: {
-			Uri uri = CometParkContract.Lots.buildLotUri(mLot);// TODO currently
-																// I support
-																// only one
+			Uri uri = CometParkContract.Lots.buildLotUri(INITIAL_LOT);// TODO
+																		// currently
+			// I support
+			// only one
 			return new CursorLoader(getActivity(), uri, LotsQuery.PROJECTION,
 					null, null, null);
 		}
@@ -255,10 +267,29 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
-		mShowMarkers = cameraPosition.zoom >= 18;
-		for (Marker m : mMarkersLot.get(mLot)) {
-			m.setVisible(mShowMarkers);
+		if (TextUtils.isEmpty(currentLot)) {
+            return;
+        }
+		
+		mShow = cameraPosition.zoom >= 18;
+		showMarker(mShow);
+		// if(mShow){
+		// enableLot();
+		//
+		// }else{
+		// showMarker(mShow);
+		// currentLot = "";
+		// disableLot();
+		// }
+	}
+
+	private void showMarker(boolean show) {
+		for (Marker m : mMarkersLot.get(currentLot)) {
+			if(m.getSnippet().equals(""+App.STATUS_AVAILABLE)){ 
+				m.setVisible(show);
+			}
 		}
+		
 	}
 
 	@Override
@@ -319,31 +350,28 @@ public class MapFragment extends SupportMapFragment implements
 				String spotId = cursor.getString(SpotsQuery.SPOT_ID);
 				String lotId = cursor.getString(SpotsQuery.SPOT_LOT);
 				int status = cursor.getInt(SpotsQuery.SPOT_STATUS);
+				Log.d(TAG, "spot:" + spotId + " status: " + status);
 				int permitType = cursor.getInt(SpotsQuery.SPOT_TYPE);
 				double lat = cursor.getDouble(SpotsQuery.SPOT_LAT);
 				double lng = cursor.getDouble(SpotsQuery.SPOT_LNG);
-				if (status == App.STATUS_OCCUPIED) {
-					// the spot is occupied, don't display anything
-					// but may be display depends on user settings
-				} else {
-					BitmapDescriptor icon = null;
-					switch (permitType) {
-					default:
-						icon = BitmapDescriptorFactory
-								.fromResource(R.drawable.marker_test);
-					}
+				BitmapDescriptor icon = null;
+				switch (permitType) {
+				default:
+					icon = BitmapDescriptorFactory
+							.fromResource(R.drawable.marker_test);
+				}
 
-					// add marker to map
-					if (icon != null) {
-						Marker m = mMap.addMarker(new MarkerOptions()
-								.position(new LatLng(lat, lng)).title(spotId)
-								.snippet("" + permitType).icon(icon)
-								.visible(false));
-						MarkerModel model = new MarkerModel(spotId, permitType,
-								permitType, m);
-						mMarkersLot.get(lotId).add(m);
-						mMarkers.put(spotId, model);
-					}
+				// add marker to map
+				if (icon != null) {
+					Marker m = mMap
+							.addMarker(new MarkerOptions()
+									.position(new LatLng(lat, lng))
+									.title(spotId).snippet(""+status)
+									.icon(icon).visible(false));
+					MarkerModel model = new MarkerModel(spotId, status,
+							permitType, m);
+					mMarkersLot.get(lotId).add(m);
+					mMarkers.put(spotId, model);
 				}
 				cursor.moveToNext();
 			}
@@ -362,7 +390,7 @@ public class MapFragment extends SupportMapFragment implements
 				String file = cursor.getString(LotsQuery.LOT_MAP_TILE_FILE);
 				int status = cursor.getInt(LotsQuery.LOT_STATUS);
 				if (status == App.STATUS_OCCUPIED) {
-					//the lot is reserved
+					// the lot is reserved
 				} else {
 					String[] topLeft = cursor.getString(
 							LotsQuery.LOT_LOCATION_TOP_LEFT).split(",");
@@ -376,35 +404,37 @@ public class MapFragment extends SupportMapFragment implements
 					File f = MapUtils.getTileFile(getActivity()
 							.getApplicationContext(), file);
 					if (f != null) {
-						double[] coordinates = MapUtils.stringsToDoubles(topLeft,topRight,bottomLeft,bottomRight);
+						double[] coordinates = MapUtils.stringsToDoubles(
+								topLeft, topRight, bottomLeft, bottomRight);
+						Log.d(TAG, "file:" + file);
 						addTileProvider(lotId, f, coordinates);
 					}
 				}
 				cursor.moveToNext();
 			}
 			mLotsLoaded = true;
-	        enableLot();
+			enableLot();
 		}
 
 	}
-	
+
 	void addTileProvider(String lot, File f, double[] coordinates) {
-        if (!f.exists()) {
-            return;
-        }
-        TileProvider provider;
-        try {
-            provider = new SVGTileProvider(f, mDPI, coordinates);
-        } catch (IOException e) {
-            LOGD(TAG, "Could not create Tile Provider.");
-            e.printStackTrace();
-            return;
-        }
-        TileOverlayOptions tileOverlay = new TileOverlayOptions()
-                .tileProvider(provider).visible(false);
-        mTileProviders.put(lot, provider);
-        mTileOverlays.put(lot, mMap.addTileOverlay(tileOverlay));
-    }
+		if (!f.exists()) {
+			return;
+		}
+		TileProvider provider;
+		try {
+			provider = new SVGTileProvider(f, mDPI, coordinates);
+		} catch (IOException e) {
+			LOGD(TAG, "Could not create Tile Provider.");
+			e.printStackTrace();
+			return;
+		}
+		TileOverlayOptions tileOverlay = new TileOverlayOptions().tileProvider(
+				provider).visible(false);
+		mTileProviders.put(lot, provider);
+		mTileOverlays.put(lot, mMap.addTileOverlay(tileOverlay));
+	}
 
 	/**
 	 * A structure to store information about a Marker.
@@ -422,6 +452,5 @@ public class MapFragment extends SupportMapFragment implements
 			this.marker = marker;
 		}
 	}
-	
 
 }

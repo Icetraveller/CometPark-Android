@@ -1,0 +1,29 @@
+{
+  "dataVersion": "1231251243423423",
+  "configType": 1,
+  "lots": [
+    {
+      "id": "0",
+      "name": "Lot I",
+      "filename": "lot_0.svg",
+      "url": "",
+      "status": 0,
+      "topLeft": {
+        "lat": 32.986530,
+        "lng": -96.753725
+      },
+      "bottomLeft": {
+        "lat": 32.985844,
+        "lng": -96.753725
+      },
+      "topRight": {
+        "lat": 32.986530,
+        "lng": -96.752116
+      },
+      "bottomRight": {
+        "lat": 32.985744,
+        "lng": -96.752122
+      }
+    }
+  ]
+}

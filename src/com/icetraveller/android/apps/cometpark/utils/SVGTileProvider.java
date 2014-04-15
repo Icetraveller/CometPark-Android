@@ -47,16 +47,18 @@ public class SVGTileProvider implements TileProvider {
 				new ByteArrayInputStream(mSvgFile)).getLimits();
 
 		mBaseMatrix = new Matrix();
-		mBaseMatrix.setPolyToPoly(new float[] { limits.width(), 0, // topright23
+		mBaseMatrix.setPolyToPoly(new float[] {
+				0,0, //top left 01
 				0, limits.height(), // bottom left45
-				limits.width(), limits.height() // bottom right67
+				limits.width(), 0, // topright23
+//				limits.width(), limits.height() // bottom right67
 				}, 0, new float[] {
 						// 59.20057102222222f, 103.1282771843786f,
 						// 59.200258133333335f, 103.1287977144785f,
 						// 59.200571733333334f, 103.1288011055422f
-						(float) coordinates[2], (float) coordinates[3],
+						(float) coordinates[0], (float) coordinates[1],
 						(float) coordinates[4], (float) coordinates[5],
-						(float) coordinates[6], (float) coordinates[7] 
+						(float) coordinates[2], (float) coordinates[3] 
 								}, 0, 3);
 	}
 

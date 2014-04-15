@@ -18,6 +18,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -33,7 +34,7 @@ public class CometParkProvider extends ContentProvider {
 	private static final int SPOTS_ID = 101;
 	private static final int SPOTS_ID_LOT = 102;
 	private static final int SPOTS_ID_TYPE = 103;
-//	private static final int SPOTS_ID_LOCATION_ID = 104;
+	private static final int SPOTS_OF_LOT = 104;
 	private static final int SPOTS_ID_STATUS = 105;
 
 	private static final int LOTS = 200;
@@ -67,6 +68,7 @@ public class CometParkProvider extends ContentProvider {
 		// matcher.addURI(authority, "maptiles/*", MAPTILES_FLOOR);
 
 		matcher.addURI(authority, "spots", SPOTS);
+		matcher.addURI(authority, "spots/of/*", SPOTS_OF_LOT);
 		matcher.addURI(authority, "spots/*", SPOTS_ID);
 		matcher.addURI(authority, "spots/*/lot", SPOTS_ID_LOT);
 		matcher.addURI(authority, "spots/*/type", SPOTS_ID_TYPE);
@@ -116,6 +118,8 @@ public class CometParkProvider extends ContentProvider {
 			return Spots.CONTENT_TYPE;
 		case SPOTS_ID:
 			return Spots.CONTENT_ITEM_TYPE;
+		case SPOTS_OF_LOT:
+			return Spots.CONTENT_TYPE;
 		case LOTS:
 			return Lots.CONTENT_TYPE;
 		case LOTS_ID:
@@ -243,6 +247,10 @@ public class CometParkProvider extends ContentProvider {
 			final String spotId = Spots.getSpotId(uri);
 			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
 		}
+		case SPOTS_OF_LOT: {
+        	final String lotId = Spots.getLotIdForSpots(uri);
+        	return builder.table(Tables.SPOTS).where(Spots.LOT + "=?", lotId);
+        }
 		case LOTS: {
 			return builder.table(Tables.LOTS);
 		}
@@ -280,6 +288,11 @@ public class CometParkProvider extends ContentProvider {
         case SPOTS_ID: {
         	final String spotId = Spots.getSpotId(uri);
 			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
+        }
+        case SPOTS_OF_LOT: {
+        	final String lotId = Spots.getLotIdForSpots(uri);
+        	Log.d(TAG, ""+lotId);
+        	return builder.table(Tables.SPOTS).where(Spots.LOT + "=?", lotId);
         }
         case LOTS: {
 			return builder.table(Tables.LOTS);

@@ -2,6 +2,7 @@ package com.icetraveller.android.apps.cometpark.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.icetraveller.android.apps.cometpark.io.model.Lot;
@@ -17,6 +18,8 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 public class LotsHandler extends JSONHandler {
 	private static final String TAG = makeLogTag(LotsHandler.class);
+	
+	private HashMap<String, String> tileMap = new HashMap<String, String>();
 
 	public LotsHandler(Context context) {
 		super(context);
@@ -33,7 +36,7 @@ public class LotsHandler extends JSONHandler {
 		return batch;
 	}
 
-	private static void parseLot(Lot lot,
+	private void parseLot(Lot lot,
 			ArrayList<ContentProviderOperation> batch) {
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 				.newInsert(CometParkContract.Lots.CONTENT_URI);
@@ -41,6 +44,7 @@ public class LotsHandler extends JSONHandler {
 		builder.withValue(CometParkContract.Lots.NAME, lot.name);
 		builder.withValue(CometParkContract.Lots.MAP_TILE_FILE, lot.filename);
 		builder.withValue(CometParkContract.Lots.MAP_TILE_URL, lot.url);
+		tileMap.put(lot.filename, lot.url);
 		builder.withValue(CometParkContract.Lots.LOCATION_TOP_LEFT,
 				lot.getInfo(lot.topLeft));
 		builder.withValue(CometParkContract.Lots.LOCATION_TOP_RIGHT,
@@ -51,6 +55,10 @@ public class LotsHandler extends JSONHandler {
 				lot.getInfo(lot.bottomRight));
 		builder.withValue(CometParkContract.Lots.STATUS, lot.status);
 		batch.add(builder.build());
+	}
+	
+	public HashMap<String, String> getTileMap() {
+		return tileMap;
 	}
 
 }

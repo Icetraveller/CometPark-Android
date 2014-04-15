@@ -40,6 +40,7 @@ public final class CometParkContract {
 
 	private static final String PATH_SPOTS = "spots";
 	private static final String PATH_LOTS = "lots";
+	private static final String PATH_OF = "of";
 	private static final String PATH_LOCATIONS = "locations";
 	
 	public static class Spots implements SpotColumns, BaseColumns{
@@ -60,12 +61,21 @@ public final class CometParkContract {
         /** Build {@link Uri} for requested spot. BETA TODO*/
         public static Uri buildSpotUri(String spotId) {
             return CONTENT_URI.buildUpon()
-                    .appendPath(String.valueOf(spotId)).build();
+                    .appendPath(spotId).build();
+        }
+        
+        public static Uri buildSpotsInLot(String lotId){
+        	return CONTENT_URI.buildUpon().appendPath(PATH_OF)
+                    .appendPath(lotId).build();
         }
         
         /** Read {@link #SPOTS_ID} from {@link Spots} {@link Uri}. */
         public static String getSpotId(Uri uri) {
             return uri.getPathSegments().get(1);
+        }
+        /** Read {@link #SPOTS_ID} from {@link Spots} {@link Uri}. */
+        public static String getLotIdForSpots(Uri uri) {
+        	return uri.getPathSegments().get(2);
         }
 	}
 	
@@ -87,7 +97,7 @@ public final class CometParkContract {
         /** Build {@link Uri} for requested spot. BETA TODO*/
         public static Uri buildLotUri(String lotId) {
             return CONTENT_URI.buildUpon()
-                    .appendPath(String.valueOf(lotId)).build();
+                    .appendPath(lotId).build();
         }
         /** Build {@link Uri} for requested spot. BETA TODO*/
         public static Uri buildLotNameUri(String lotName) {

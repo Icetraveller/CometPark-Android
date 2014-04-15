@@ -26,6 +26,7 @@ import com.icetraveller.android.apps.cometpark.io.JSONHandler;
 import com.icetraveller.android.apps.cometpark.io.LotsHandler;
 import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -107,27 +108,8 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume(){
 		super.onResume();
-//		
-//		final ContentResolver resolver = getContentResolver();
-//        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-//        try {
-//        	SpotsHandler spotsHandler = new SpotsHandler(this); 
-//        	String s = JSONHandler.parseResource(this, R.raw.request_spots_example);
-//        	ArrayList sa =spotsHandler.parse(s);
-//			batch.addAll(sa);
-//			resolver.applyBatch(CometParkContract.CONTENT_AUTHORITY, batch);
-////        	batch.addAll(new LotsHandler(this).parse(
-////                    JSONHandler.parseResource(this, R.raw.request_lots_exmaple)));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (RemoteException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (OperationApplicationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		SyncProcessor process = new SyncProcessor();
+		process.execute(this);
 	}
 	
 	@Override
