@@ -49,8 +49,8 @@ import android.preference.PreferenceManager;
 public class SyncHelper {
 	public static final int FLAG_SYNC_LOCAL = 0x1; // sync with the resources in
 													// apk
-	public static final int FLAG_SYNC_REMOTE = 0x2; // sync with server
-													// resources
+	public static final int FLAG_SYNC_REMOTE = 0x2; // sync with server resources
+	public static final int FLAG_SIMPLE_SYNC = 0x4; //update spots only
 
 	private static final int LOCAL_VERSION_CURRENT = 1;
 
@@ -85,8 +85,7 @@ public class SyncHelper {
 
 		final ContentResolver resolver = mContext.getContentResolver();
 		ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-
-		LOGI(TAG, "Performing  sync");
+		
 		if ((flags & FLAG_SYNC_LOCAL) != 0) {// perform a local sync
 			LOGI(TAG, "Performing  local sync");
 			final long startLocal = System.currentTimeMillis();
@@ -141,7 +140,6 @@ public class SyncHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 	
 	

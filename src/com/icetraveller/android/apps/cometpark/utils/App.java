@@ -13,11 +13,12 @@ public class App {
 	public static final String SPOT_AVAILABILITY = "availability";
 	
 	public static final String TOKEN_ID = "token_id";
-	
+	public static final int PERMIT_TYPE_EXTENDED = 0;
 	public static final int PERMIT_TYPE_GREEN = 1;
 	public static final int PERMIT_TYPE_GOLD = 2;
-	public static final int PERMIT_TYPE_PURPLE = 3;
-	public static final int PERMIT_TYPE_ORANGE = 4;
+	public static final int PERMIT_TYPE_EVE_ORANGE = 3;
+	public static final int PERMIT_TYPE_PURPLE = 4;
+	public static final int PERMIT_TYPE_ORANGE = 5;
 	
 	public static final int STATUS_AVAILABLE = 0;
 	public static final int STATUS_OCCUPIED = 1;
@@ -41,7 +42,7 @@ public class App {
 	
 	public static final String JSON_KEY_ID = "id";
 	public static final String JSON_KEY_LOT = "lot";
-	public static final String JSON_PERMIT_TYPE = "permitType";
+	public static final String JSON_PERMIT_TYPE = "permit_type";
 	public static final String JSON_KEY_NAME = "name";
 	public static final String JSON_KEY_FILENAME = "filename";
 	public static final String JSON_KEY_URL = "url";

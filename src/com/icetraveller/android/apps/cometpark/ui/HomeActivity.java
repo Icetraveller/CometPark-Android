@@ -35,6 +35,7 @@ import com.icetraveller.android.apps.cometpark.io.JSONHandler;
 import com.icetraveller.android.apps.cometpark.io.LotsHandler;
 import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.sync.SyncHelper;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.App;
 
@@ -54,9 +55,9 @@ public class HomeActivity extends BaseActivity implements
 		ActionBar.TabListener, ViewPager.OnPageChangeListener {
 	private static final String TAG = makeLogTag(HomeActivity.class);
 	private ViewPager mViewPager;
-	private Menu mOptionsMenu;
 	public static final String TAB_LOTS = "parking_lots";
 	public static final String EXTRA_DEFAULT_TAB = "com.icetraveller.apps.cometpark.extra.DEFAULT_TAB";
+	AsyncTask<Void, Void, Void> mRegisterTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,8 +116,8 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SyncProcessor process = new SyncProcessor();
-		process.execute(this);
+		SyncProcessor process = new SyncProcessor(this);
+		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
 	}
 
 	@Override
@@ -124,7 +125,6 @@ public class HomeActivity extends BaseActivity implements
 		if (mRegisterTask != null) {
 			mRegisterTask.cancel(true);
 		}
-		unregisterReceiver(mHandleMessageReceiver);
 		GCMRegistrar.onDestroy(this);
 		super.onDestroy();
 	}
@@ -189,7 +189,6 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		mOptionsMenu = menu;
 		getMenuInflater().inflate(R.menu.home, menu);
 		return true;
 	}
@@ -213,15 +212,12 @@ public class HomeActivity extends BaseActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	AsyncTask<Void, Void, Void> mRegisterTask;
 	private void registerGCMClient() {
 		// Make sure the device has the proper dependencies.
 		GCMRegistrar.checkDevice(this);
 		// Make sure the manifest was properly set - comment out this line
 		// while developing the app, then uncomment it when it's ready.
 		GCMRegistrar.checkManifest(this);
-		registerReceiver(mHandleMessageReceiver, new IntentFilter(
-				App.DISPLAY_MESSAGE_ACTION));
 		final String regId = GCMRegistrar.getRegistrationId(this);
 		Log.d(TAG, "regId:" + regId);
 		if (regId.equals("")) {
@@ -255,12 +251,5 @@ public class HomeActivity extends BaseActivity implements
 		}
 	}
 
-	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String newMessage = intent.getExtras().getString(App.EXTRA_MESSAGE);
-			Log.d(TAG, newMessage);
-		}
-	};
 
 }

@@ -46,6 +46,11 @@ public class SpotsFetcher {
 		String jsonMessage = httpResponse.getBodyAsString();
 		return parse(jsonMessage);
 	}
+	
+	public ArrayList<ContentProviderOperation> simpleUpdate(String jsonMessage)
+			throws IOException {
+		return parse(jsonMessage);
+	}
 
 	public ArrayList<ContentProviderOperation> parse(String json)
 			throws IOException {
@@ -60,7 +65,9 @@ public class SpotsFetcher {
 	public void updateSpot(Spot spot,
 			ArrayList<ContentProviderOperation> batch) {
 		ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(CometParkContract.Spots.CONTENT_URI);
-		builder.withValue(CometParkContract.Spots.STATUS, spot.status).withSelection(CometParkContract.Spots.ID+"=?", new String[]{spot.id});
+		builder.withValue(CometParkContract.Spots.STATUS, spot.status)
+		.withValue(CometParkContract.Spots.TYPE, spot.permit_type)
+		.withSelection(CometParkContract.Spots.ID+"=?", new String[]{spot.id});
 		Log.d(TAG, "spot:"+spot.id+" status: "+spot.status);
 		batch.add(builder.build());
 	}

@@ -5,30 +5,19 @@ import java.io.IOException;
 import android.content.Context;
 import android.os.AsyncTask;
 
-public class SyncProcessor extends AsyncTask<Context, Void, String>{
+public class SyncProcessor extends AsyncTask<Integer, Void, String>{
+	Context context;
 	
-	public interface CallBacks{
-		public void done();
-	}
-	
-	CallBacks cb;
-	
-	Object mContext;
-	
-	public SyncProcessor(Object context){
+	public SyncProcessor(Context context){
 		super();
-		mContext = context;
-		cb = (CallBacks) mContext;
-	}
-	public SyncProcessor(){
-		super();
+		this.context = context;
 	}
 
 	@Override
-	protected String doInBackground(Context... params) {
-		SyncHelper syncHelper = new SyncHelper(params[0]);
+	protected String doInBackground(Integer... params) {
+		SyncHelper syncHelper = new SyncHelper(context);
 		try {
-			syncHelper.performSync(SyncHelper.FLAG_SYNC_LOCAL | SyncHelper.FLAG_SYNC_REMOTE);
+			syncHelper.performSync(params[0]);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -36,11 +25,6 @@ public class SyncProcessor extends AsyncTask<Context, Void, String>{
 		return null;
 	}
 	
-	@Override
-    protected void onPostExecute(String result) {
-		if(cb!=null)
-			cb.done();
-    }
 	
 }
 

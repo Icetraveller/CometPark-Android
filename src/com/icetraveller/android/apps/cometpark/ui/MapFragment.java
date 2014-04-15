@@ -6,11 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -38,7 +43,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.gson.Gson;
 import com.icetraveller.android.apps.cometpark.R;
+import com.icetraveller.android.apps.cometpark.io.model.Spot;
+import com.icetraveller.android.apps.cometpark.io.model.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.App;
@@ -49,7 +57,7 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 public class MapFragment extends SupportMapFragment implements
 		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
-		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor>, SyncProcessor.CallBacks {
+		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor> {
 	// Initial camera position
 	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.986078,
 			-96.752977);
@@ -90,6 +98,8 @@ public class MapFragment extends SupportMapFragment implements
 	// Padding for #centerMap
 	private int mShiftRight = 0;
 	private int mShiftTop = 0;
+	
+	private int userPermitType = -1;
 
 	// Screen DPI
 	private float mDPI = 0;
@@ -114,7 +124,15 @@ public class MapFragment extends SupportMapFragment implements
 
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
-		setHasOptionsMenu(true);
+//		setHasOptionsMenu(true);
+		
+		getActivity().registerReceiver(mHandleMessageReceiver, new IntentFilter(
+				App.DISPLAY_MESSAGE_ACTION));
+		
+		final SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getActivity());
+		String permitTypeString = prefs.getString(SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
+		userPermitType = Integer.parseInt(permitTypeString);
 	}
 
 	@Override
@@ -164,6 +182,11 @@ public class MapFragment extends SupportMapFragment implements
 
 
 		return v;
+	}
+	
+	public void onDestroy (){
+		getActivity().unregisterReceiver(mHandleMessageReceiver);
+		super.onDestroy();
 	}
 
 	private void setupMap(boolean resetCamera) {
@@ -291,14 +314,26 @@ public class MapFragment extends SupportMapFragment implements
 		if(!mShow){
 			return;
 		}
+		Log.d(TAG, "userPermitType= "+userPermitType);
+		boolean permitFlag = true;
 		for (Marker m : mMarkersLot.get(currentLot)) {
-			if(m.getSnippet().equals(""+App.STATUS_AVAILABLE)){ 
+			String spotId = m.getTitle();
+			MarkerModel model = mMarkers.get(spotId);
+			permitFlag= userPermitType >= model.type;
+			if((model.status == App.STATUS_AVAILABLE) && permitFlag){
 				m.setVisible(true);
 			}else{
 				m.setVisible(false);
 			}
 		}
-		
+	}
+	private void clearMarker() {
+		if(!mShow || !mMarkersLoaded){
+			return;
+		}
+		for (Marker m : mMarkersLot.get(currentLot)) {
+				m.setVisible(false);
+		}
 	}
 
 	@Override
@@ -365,6 +400,26 @@ public class MapFragment extends SupportMapFragment implements
 				double lng = cursor.getDouble(SpotsQuery.SPOT_LNG);
 				BitmapDescriptor icon = null;
 				switch (permitType) {
+				case App.PERMIT_TYPE_EXTENDED:
+					icon = BitmapDescriptorFactory
+					.fromResource(R.drawable.marker_extended);
+					break;
+				case App.PERMIT_TYPE_GREEN:
+					icon = BitmapDescriptorFactory
+					.fromResource(R.drawable.marker_green);
+					break;
+				case App.PERMIT_TYPE_GOLD:
+					icon = BitmapDescriptorFactory
+					.fromResource(R.drawable.marker_gold);
+					break;
+				case App.PERMIT_TYPE_ORANGE:
+					icon = BitmapDescriptorFactory
+					.fromResource(R.drawable.marker_orange);
+					break;
+				case App.PERMIT_TYPE_PURPLE:
+					icon = BitmapDescriptorFactory
+					.fromResource(R.drawable.marker_purple);
+					break;
 				default:
 					icon = BitmapDescriptorFactory
 							.fromResource(R.drawable.marker_test);
@@ -462,63 +517,88 @@ public class MapFragment extends SupportMapFragment implements
 		}
 	}
 	
-	/**
-	 * For test only
-	 */
-	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.map, menu);
-	}
+//	/**
+//	 * For test only
+//	 */
+//	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
+//		super.onCreateOptionsMenu(menu, inflater);
+//		inflater.inflate(R.menu.map, menu);
+//	}
+//	
+//	public boolean onOptionsItemSelected (MenuItem item){
+//		switch (item.getItemId()) {
+//		case R.id.menu_refresh:
+//			triggerRefresh();
+//			return true;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
+//	boolean flag = true;
+//	Thread a;
+//	
+//	public void triggerRefresh(){
+//		if(a !=null)
+//			return;
+//		
+//		a = new Thread(new Runnable(){
+//			@Override
+//			public void run() {
+//				while(true){
+//					if(!flag){
+//						continue;
+//					}else{
+//						Log.d(TAG, "lol");
+//						flag = false;
+//						SyncProcessor process = new SyncProcessor(MapFragment.this);
+//						process.execute(getActivity());
+//					}
+//				}
+//			}});
+//		a.start();
+//		
+//	}
+//
+//	@Override
+//	public void done() {
+//		LoaderManager lm = getActivity().getSupportLoaderManager();
+//		for (Marker m : mMarkersLot.get(currentLot)) {
+//			if(m==null) continue;
+//				m.setVisible(false);
+//		}
+//		mMarkers = new HashMap<String, MarkerModel>();
+//		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
+//		// initialise floor marker lists
+//		for (String s : mLots) {
+//			mMarkersLot.put(s, new ArrayList<Marker>());
+//		}
+//		currentLot = "";
+//		lm.restartLoader(SpotsQuery._TOKEN, null, this);
+//		flag = true;
+//	}
 	
-	public boolean onOptionsItemSelected (MenuItem item){
-		switch (item.getItemId()) {
-		case R.id.menu_refresh:
-			triggerRefresh();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	boolean flag = true;
-	Thread a;
-	
-	public void triggerRefresh(){
-		if(a !=null)
-			return;
-		
-		a = new Thread(new Runnable(){
-			@Override
-			public void run() {
-				while(true){
-					if(!flag){
-						continue;
-					}else{
-						Log.d(TAG, "lol");
-						flag = false;
-						SyncProcessor process = new SyncProcessor(MapFragment.this);
-						process.execute(getActivity());
-					}
-				}
-			}});
-		a.start();
-		
-	}
-
-	@Override
-	public void done() {
-		LoaderManager lm = getActivity().getSupportLoaderManager();
-		for (Marker m : mMarkersLot.get(currentLot)) {
-			if(m==null) continue;
+	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String newMessage = intent.getExtras().getString(App.EXTRA_MESSAGE);
+			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
+			
+			for (Spot spot : spotsJson.spots) {
+				MarkerModel model = mMarkers.get(spot.id);
+				model.status = spot.status;
+				Marker m = model.marker;
+				m.setSnippet(""+model.status);
 				m.setVisible(false);
+//				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
+//				if(mMarkersLot.get(currentLot).contains(m))
+//					LOGD(TAG,"WOOOOW");
+//				int i = mMarkersLot.get(currentLot).indexOf(m);
+//				Marker m2= mMarkersLot.get(currentLot).get(i);
+//				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
+//				LOGD(TAG,"awdaw");
+			}
+			showMarker();
+			Log.d(TAG, newMessage);
 		}
-		mMarkers = new HashMap<String, MarkerModel>();
-		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
-		// initialise floor marker lists
-		for (String s : mLots) {
-			mMarkersLot.put(s, new ArrayList<Marker>());
-		}
-		currentLot = "";
-		lm.restartLoader(SpotsQuery._TOKEN, null, this);
-		flag = true;
-	}
+	};
 
 }

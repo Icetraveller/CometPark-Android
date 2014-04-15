@@ -42,7 +42,7 @@ public class SpotsHandler extends JSONHandler {
 				.newInsert(CometParkContract.Spots.buildUri());
 		builder.withValue(CometParkContract.Spots.ID, spot.id);
 		builder.withValue(CometParkContract.Spots.LOT, spot.lot);
-		builder.withValue(CometParkContract.Spots.TYPE, spot.type);
+		builder.withValue(CometParkContract.Spots.TYPE, spot.permit_type);
 		builder.withValue(CometParkContract.Spots.STATUS, spot.status);
 		builder.withValue(CometParkContract.Spots.LAT, spot.lat);
 		builder.withValue(CometParkContract.Spots.LNG, spot.lng);

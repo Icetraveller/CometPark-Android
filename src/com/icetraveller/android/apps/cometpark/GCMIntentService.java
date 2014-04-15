@@ -57,10 +57,10 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "Received message. Extras: " + intent.getExtras());
-        String s = intent.getStringExtra("wow");
+        String s = intent.getStringExtra("message");
         App.displayMessage(context, s);
         // notifies user
-        generateNotification(context, s);
+//        generateNotification(context, s);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class GCMIntentService extends GCMBaseIntentService {
         Log.i(TAG, "Received deleted messages notification");
         App.displayMessage(context, "asd");
         // notifies user
-        generateNotification(context, "asd");
+//        generateNotification(context, "asd");
     }
 
     @Override
