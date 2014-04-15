@@ -491,11 +491,12 @@ public class MapFragment extends SupportMapFragment implements
 				while(true){
 					if(!flag){
 						continue;
+					}else{
+						Log.d(TAG, "lol");
+						flag = false;
+						SyncProcessor process = new SyncProcessor(MapFragment.this);
+						process.execute(getActivity());
 					}
-					Log.d(TAG, "lol");
-					flag = false;
-					SyncProcessor process = new SyncProcessor(MapFragment.this);
-					process.execute(getActivity());
 				}
 			}});
 		a.start();

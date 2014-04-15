@@ -36,7 +36,7 @@ public class SpotsFetcher {
 	public ArrayList<ContentProviderOperation> fetchAndParse()
 			throws IOException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
-		String url = App.SERVER_URL + "request";
+		String url = App.SERVER_URL + "/request";
 
 		BasicHttpClient httpClient = new BasicHttpClient();
 		ParameterMap params = httpClient.newParams()

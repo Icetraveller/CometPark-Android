@@ -1,6 +1,13 @@
 package com.icetraveller.android.apps.cometpark.utils;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
 public class App {
+	public static final String API_KEY = "AIzaSyD2r7coXpNsyYVsXFQ-llsO3_K-E4wwRwg";
+	public static final String SENDER_ID = "876843474676";
+	
 	public static final String SPOT_KIND = "Spot";
 	public static final String SPOT_ID = "Spot_id";
 	public static final String SPOT_AVAILABILITY = "availability";
@@ -48,6 +55,24 @@ public class App {
 	public static final String JSON_KEY_BOTTOM_LEFT = "bottomLeft";
 	public static final String JSON_KEY_BOTTOM_RIGHT = "bottomRight";
 	
-	public static final String SERVER_URL = "http://2-dot-cometparking.appspot.com/";
+	public static final String SERVER_URL = "http://2-dot-cometparking.appspot.com";
+	
+	 /**
+     * Intent used to display a message in the screen.
+     */
+    public static final String DISPLAY_MESSAGE_ACTION =
+            "com.icetraveller.android.apps.cometpark.gcm.DISPLAY_MESSAGE";
+
+    /**
+     * Intent's extra that contains the message to be displayed.
+     */
+    public static final String EXTRA_MESSAGE = "message";
+	
+	public static void displayMessage(Context context, String message) {
+    	Log.d("Config", "received");
+        Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
+        intent.putExtra(EXTRA_MESSAGE, message);
+        context.sendBroadcast(intent);
+    }
 
 }
