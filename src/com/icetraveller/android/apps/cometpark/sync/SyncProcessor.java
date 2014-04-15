@@ -6,6 +6,23 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 public class SyncProcessor extends AsyncTask<Context, Void, String>{
+	
+	public interface CallBacks{
+		public void done();
+	}
+	
+	CallBacks cb;
+	
+	Object mContext;
+	
+	public SyncProcessor(Object context){
+		super();
+		mContext = context;
+		cb = (CallBacks) mContext;
+	}
+	public SyncProcessor(){
+		super();
+	}
 
 	@Override
 	protected String doInBackground(Context... params) {
@@ -18,7 +35,12 @@ public class SyncProcessor extends AsyncTask<Context, Void, String>{
 		}
 		return null;
 	}
-
-
+	
+	@Override
+    protected void onPostExecute(String result) {
+		if(cb!=null)
+			cb.done();
+    }
+	
 }
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +18,9 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -36,6 +40,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.App;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
@@ -44,7 +49,7 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 public class MapFragment extends SupportMapFragment implements
 		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
-		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor> {
+		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor>, SyncProcessor.CallBacks {
 	// Initial camera position
 	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.986078,
 			-96.752977);
@@ -109,6 +114,7 @@ public class MapFragment extends SupportMapFragment implements
 
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
+		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -211,7 +217,7 @@ public class MapFragment extends SupportMapFragment implements
 			}
 
 			// show all markers
-			showMarker(mShow);
+			showMarker();
 		}
 	}
 
@@ -228,8 +234,7 @@ public class MapFragment extends SupportMapFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
 		switch (id) {
 		case SpotsQuery._TOKEN: {
-//			Uri uri = CometParkContract.Spots.buildSpotsInLot(INITIAL_LOT);
-			Uri uri = CometParkContract.Spots.CONTENT_URI;
+			Uri uri = CometParkContract.Spots.buildSpotsInLot(INITIAL_LOT);
 			return new CursorLoader(getActivity(), uri, SpotsQuery.PROJECTION,
 					null, null, null);
 		}
@@ -262,7 +267,7 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-
+		
 	}
 
 	@Override
@@ -272,7 +277,6 @@ public class MapFragment extends SupportMapFragment implements
         }
 		
 		mShow = cameraPosition.zoom >= 18;
-		showMarker(mShow);
 		// if(mShow){
 		// enableLot();
 		//
@@ -283,10 +287,15 @@ public class MapFragment extends SupportMapFragment implements
 		// }
 	}
 
-	private void showMarker(boolean show) {
+	private void showMarker() {
+		if(!mShow){
+			return;
+		}
 		for (Marker m : mMarkersLot.get(currentLot)) {
 			if(m.getSnippet().equals(""+App.STATUS_AVAILABLE)){ 
-				m.setVisible(show);
+				m.setVisible(true);
+			}else{
+				m.setVisible(false);
 			}
 		}
 		
@@ -451,6 +460,64 @@ public class MapFragment extends SupportMapFragment implements
 			this.status = status;
 			this.marker = marker;
 		}
+	}
+	
+	/**
+	 * For test only
+	 */
+	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.map, menu);
+	}
+	
+	public boolean onOptionsItemSelected (MenuItem item){
+		switch (item.getItemId()) {
+		case R.id.menu_refresh:
+			triggerRefresh();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	boolean flag = true;
+	Thread a;
+	
+	public void triggerRefresh(){
+		if(a !=null)
+			return;
+		
+		a = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				while(true){
+					if(!flag){
+						continue;
+					}
+					Log.d(TAG, "lol");
+					flag = false;
+					SyncProcessor process = new SyncProcessor(MapFragment.this);
+					process.execute(getActivity());
+				}
+			}});
+		a.start();
+		
+	}
+
+	@Override
+	public void done() {
+		LoaderManager lm = getActivity().getSupportLoaderManager();
+		for (Marker m : mMarkersLot.get(currentLot)) {
+			if(m==null) continue;
+				m.setVisible(false);
+		}
+		mMarkers = new HashMap<String, MarkerModel>();
+		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
+		// initialise floor marker lists
+		for (String s : mLots) {
+			mMarkersLot.put(s, new ArrayList<Marker>());
+		}
+		currentLot = "";
+		lm.restartLoader(SpotsQuery._TOKEN, null, this);
+		flag = true;
 	}
 
 }
