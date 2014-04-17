@@ -17,8 +17,8 @@ package com.icetraveller.android.apps.cometpark.gcm;
 
 
 import com.google.android.gcm.GCMRegistrar;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
-import com.icetraveller.android.apps.cometpark.utils.App;
 
 import android.content.Context;
 import android.util.Log;
@@ -53,7 +53,7 @@ public final class ServerUtilities {
      */
     public static void register(final Context context, final String regId) {
         Log.i(TAG, "registering device (regId = " + regId + ")");
-        String serverUrl = App.SERVER_URL + "/register";
+        String serverUrl = Config.SERVER_URL + "/register";
         Map<String, String> params = new HashMap<String, String>();
         params.put("regId", regId);
         params.put("wow", "0");
@@ -68,7 +68,7 @@ public final class ServerUtilities {
                 post(serverUrl, params);
                 GCMRegistrar.setRegisteredOnServer(context, true);
                 String message = "registered";
-                App.displayMessage(context, message);
+                Config.displayMessage(context, message);
                 return;
             } catch (IOException e) {
                 // Here we are simplifying and retrying on any error; in a real
@@ -92,7 +92,7 @@ public final class ServerUtilities {
             }
         }
         String message = "error";
-        App.displayMessage(context, message);
+        Config.displayMessage(context, message);
     }
 
     /**
@@ -100,14 +100,14 @@ public final class ServerUtilities {
      */
     public static void unregister(final Context context, final String regId) {
         Log.i(TAG, "unregistering device (regId = " + regId + ")");
-        String serverUrl = App.SERVER_URL + "/unregister";
+        String serverUrl = Config.SERVER_URL + "/unregister";
         Map<String, String> params = new HashMap<String, String>();
         params.put("regId", regId);
         try {
             post(serverUrl, params);
             GCMRegistrar.setRegisteredOnServer(context, false);
             String message = "unregistered";
-            App.displayMessage(context, message);
+            Config.displayMessage(context, message);
         } catch (IOException e) {
             // At this point the device is unregistered from GCM, but still
             // registered in the server.
@@ -115,7 +115,7 @@ public final class ServerUtilities {
             // if the server tries to send a message to the device, it will get
             // a "NotRegistered" error message and should unregister the device.
             String message = "error";
-            App.displayMessage(context, message);
+            Config.displayMessage(context, message);
         }
     }
 

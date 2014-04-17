@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.Gson;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.io.model.Spot;
 import com.icetraveller.android.apps.cometpark.io.model.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
-import com.icetraveller.android.apps.cometpark.utils.App;
 import com.icetraveller.android.apps.cometpark.utils.Lists;
 import com.turbomanage.httpclient.BasicHttpClient;
 import com.turbomanage.httpclient.HttpResponse;
@@ -36,12 +36,12 @@ public class SpotsFetcher {
 	public ArrayList<ContentProviderOperation> fetchAndParse()
 			throws IOException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
-		String url = App.SERVER_URL + "/request";
+		String url = Config.SERVER_URL + "/request";
 
 		BasicHttpClient httpClient = new BasicHttpClient();
 		ParameterMap params = httpClient.newParams()
-				.add("" + App._TYPE, "" + App.TYPE_REQUEST_SPOTS_IN_LOT)
-				.add(App.JSON_KEY_LOT, lotId);
+				.add("" + Config._TYPE, "" + Config.TYPE_REQUEST_SPOTS_IN_LOT)
+				.add(Config.JSON_KEY_LOT, lotId);
 		HttpResponse httpResponse = httpClient.post(url, params);
 		String jsonMessage = httpResponse.getBodyAsString();
 		return parse(jsonMessage);

@@ -18,8 +18,6 @@ package com.icetraveller.android.apps.cometpark.utils;
 
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-
 /**
  * Provides static methods for creating mutable {@code Maps} instances easily.
  */

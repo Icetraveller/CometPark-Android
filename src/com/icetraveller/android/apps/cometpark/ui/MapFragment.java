@@ -44,12 +44,12 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.gson.Gson;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.io.model.Spot;
 import com.icetraveller.android.apps.cometpark.io.model.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
-import com.icetraveller.android.apps.cometpark.utils.App;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
 
@@ -127,7 +127,7 @@ public class MapFragment extends SupportMapFragment implements
 //		setHasOptionsMenu(true);
 		
 		getActivity().registerReceiver(mHandleMessageReceiver, new IntentFilter(
-				App.DISPLAY_MESSAGE_ACTION));
+				Config.DISPLAY_MESSAGE_ACTION));
 		
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
@@ -320,7 +320,7 @@ public class MapFragment extends SupportMapFragment implements
 			String spotId = m.getTitle();
 			MarkerModel model = mMarkers.get(spotId);
 			permitFlag= userPermitType >= model.type;
-			if((model.status == App.STATUS_AVAILABLE) && permitFlag){
+			if((model.status == Config.STATUS_AVAILABLE) && permitFlag){
 				m.setVisible(true);
 			}else{
 				m.setVisible(false);
@@ -400,23 +400,23 @@ public class MapFragment extends SupportMapFragment implements
 				double lng = cursor.getDouble(SpotsQuery.SPOT_LNG);
 				BitmapDescriptor icon = null;
 				switch (permitType) {
-				case App.PERMIT_TYPE_EXTENDED:
+				case Config.PERMIT_TYPE_EXTENDED:
 					icon = BitmapDescriptorFactory
 					.fromResource(R.drawable.marker_extended);
 					break;
-				case App.PERMIT_TYPE_GREEN:
+				case Config.PERMIT_TYPE_GREEN:
 					icon = BitmapDescriptorFactory
 					.fromResource(R.drawable.marker_green);
 					break;
-				case App.PERMIT_TYPE_GOLD:
+				case Config.PERMIT_TYPE_GOLD:
 					icon = BitmapDescriptorFactory
 					.fromResource(R.drawable.marker_gold);
 					break;
-				case App.PERMIT_TYPE_ORANGE:
+				case Config.PERMIT_TYPE_ORANGE:
 					icon = BitmapDescriptorFactory
 					.fromResource(R.drawable.marker_orange);
 					break;
-				case App.PERMIT_TYPE_PURPLE:
+				case Config.PERMIT_TYPE_PURPLE:
 					icon = BitmapDescriptorFactory
 					.fromResource(R.drawable.marker_purple);
 					break;
@@ -453,7 +453,7 @@ public class MapFragment extends SupportMapFragment implements
 				String name = cursor.getString(LotsQuery.LOT_NAME);
 				String file = cursor.getString(LotsQuery.LOT_MAP_TILE_FILE);
 				int status = cursor.getInt(LotsQuery.LOT_STATUS);
-				if (status == App.STATUS_OCCUPIED) {
+				if (status == Config.STATUS_OCCUPIED) {
 					// the lot is reserved
 				} else {
 					String[] topLeft = cursor.getString(
@@ -579,7 +579,7 @@ public class MapFragment extends SupportMapFragment implements
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String newMessage = intent.getExtras().getString(App.EXTRA_MESSAGE);
+			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
 			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
 			
 			for (Spot spot : spotsJson.spots) {

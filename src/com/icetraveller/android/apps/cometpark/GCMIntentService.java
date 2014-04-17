@@ -28,7 +28,6 @@ import com.google.android.gcm.GCMBaseIntentService;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.gcm.ServerUtilities;
 import com.icetraveller.android.apps.cometpark.ui.HomeActivity;
-import com.icetraveller.android.apps.cometpark.utils.App;
 
 /**
  * IntentService responsible for handling GCM messages.
@@ -39,7 +38,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     private static final String TAG = "GCMIntentService";
 
     public GCMIntentService() {
-        super(App.SENDER_ID);
+        super(Config.SENDER_ID);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "Received message. Extras: " + intent.getExtras());
         String s = intent.getStringExtra("message");
-        App.displayMessage(context, s);
+        Config.displayMessage(context, s);
         // notifies user
 //        generateNotification(context, s);
     }
@@ -66,7 +65,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onDeletedMessages(Context context, int total) {
         Log.i(TAG, "Received deleted messages notification");
-        App.displayMessage(context, "asd");
+        Config.displayMessage(context, "asd");
         // notifies user
 //        generateNotification(context, "asd");
     }

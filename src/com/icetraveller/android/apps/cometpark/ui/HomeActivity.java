@@ -23,12 +23,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.gcm.ServerUtilities;
 import com.icetraveller.android.apps.cometpark.io.JSONHandler;
@@ -37,7 +39,7 @@ import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.sync.SyncHelper;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
-import com.icetraveller.android.apps.cometpark.utils.App;
+import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -58,6 +60,7 @@ public class HomeActivity extends BaseActivity implements
 	public static final String TAB_LOTS = "parking_lots";
 	public static final String EXTRA_DEFAULT_TAB = "com.icetraveller.apps.cometpark.extra.DEFAULT_TAB";
 	AsyncTask<Void, Void, Void> mRegisterTask;
+	SyncProcessor process;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,9 @@ public class HomeActivity extends BaseActivity implements
 		FragmentManager fm = getSupportFragmentManager();
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
+		
+		
+		mViewPager.requestTransparentRegion(mViewPager);;
 
 		String homeScreenLabel;
 		if (mViewPager != null) {
@@ -86,6 +92,8 @@ public class HomeActivity extends BaseActivity implements
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 			actionBar.addTab(actionBar.newTab().setText(R.string.title_rank)
+					.setTabListener(this));
+			actionBar.addTab(actionBar.newTab().setText(R.string.title_map)
 					.setTabListener(this));
 
 			setHasTabs();
@@ -116,12 +124,14 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SyncProcessor process = new SyncProcessor(this);
+		process = new SyncProcessor(this);
 		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
 	}
 
 	@Override
 	protected void onDestroy() {
+		//TODO should test to say if the data will be corrupt;
+		process.cancel(true);
 		if (mRegisterTask != null) {
 			mRegisterTask.cancel(true);
 		}
@@ -142,11 +152,13 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	public void onPageSelected(int position) {
 		getSupportActionBar().setSelectedNavigationItem(position);
-
 		int titleId = -1;
 		switch (position) {
 		case 0:
 			titleId = R.string.title_rank;
+			break;
+		case 1:
+			titleId = R.string.title_map;
 			break;
 		}
 	}
@@ -170,19 +182,26 @@ public class HomeActivity extends BaseActivity implements
 		public HomePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
-
+		
+		
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
 			case 0:
 				return new RankFragment();
+			case 1:
+				MapFragment mapFragment = new MapFragment();
+				Bundle b = new Bundle();
+				b.putString(MapUtils.SHOW_LOT, "0");
+				mapFragment.setArguments(b);
+				return mapFragment;
 			}
 			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 	}
 
@@ -222,7 +241,7 @@ public class HomeActivity extends BaseActivity implements
 		Log.d(TAG, "regId:" + regId);
 		if (regId.equals("")) {
 			// Automatically registers application on startup.
-			GCMRegistrar.register(this, App.SENDER_ID);
+			GCMRegistrar.register(this, Config.SENDER_ID);
 		} else {
 			// Device is already registered on GCM, check server.
 			if (GCMRegistrar.isRegisteredOnServer(this)) {
