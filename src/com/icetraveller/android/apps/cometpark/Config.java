@@ -14,6 +14,7 @@ public class Config {
 	public static final int PERMIT_TYPE_EVE_ORANGE = 3;
 	public static final int PERMIT_TYPE_PURPLE = 4;
 	public static final int PERMIT_TYPE_ORANGE = 5;
+	public static final int PERMIT_TYPE_SUM = 6;
 	
 	public static final int STATUS_AVAILABLE = 0;
 	public static final int STATUS_OCCUPIED = 1;
@@ -84,6 +85,29 @@ public class Config {
 	
 	public static final int _TYPE = 99;
 	
+	/** The key used to broadcast message to client*/
+	/**
+	 *  Notify user a spot status info updates
+	 */
+	public static final int BROADCAST_SPOTS_STATUS_UPDATE = 900;
+	
+	/**
+	 * Lots status info updates
+	 */
+	public static final int BROADCAST_LOTS_STATUS_UPDATE = 901;
+	
+	/**
+	 * Notify client the spots info is out of date.
+	 */
+	public static final int BROADCAST_SPOTS_INFO_UPDATE = 902;
+	
+	/**
+	 * Notify client the lots info is out of date.
+	 */
+	public static final int BROADCAST_LOTS_INFO_UPDATE = 903;
+	
+	public static final String TYPE = "type";
+	
 	public static final String JSON_TYPE = "type";
 	public static final String JSON_CONTROLLER_ID = "controllerId";
 	public static final String JSON_KEY_SPOTS = "spots";
@@ -104,6 +128,10 @@ public class Config {
 	public static final String JSON_KEY_TOP_RIGHT = "topRight";
 	public static final String JSON_KEY_BOTTOM_LEFT = "bottomLeft";
 	public static final String JSON_KEY_BOTTOM_RIGHT = "bottomRight";
+	
+
+	public static final String JSON_KEY_LOTS_STATUS = "lot_status_info";
+	public static final String JSON_KEY_AVAILABLE_SPOTS_COUNT = "available_spots_count";
 	
 	public static final String SERVER_URL = "http://2-dot-cometparking.appspot.com";
 	

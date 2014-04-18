@@ -17,7 +17,7 @@ public class SyncProcessor extends AsyncTask<Integer, Void, String>{
 	protected String doInBackground(Integer... params) {
 		SyncHelper syncHelper = new SyncHelper(context);
 		try {
-			syncHelper.performSync(params[0]);
+			syncHelper.performInitializationSync(params[0]);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

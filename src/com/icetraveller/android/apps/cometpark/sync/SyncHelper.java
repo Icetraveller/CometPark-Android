@@ -66,16 +66,18 @@ public class SyncHelper {
 
 	/**
 	 * TODO this is used in home screen
+	 * This sync should sync whole lot status data.
+	 * The data is suppose to be sync when rank list resume
 	 */
 	public static void requestManualSync() {
 	}
 
 	/**
-	 * 
+	 * This sync is to create lots spots data
 	 * @param flags
-	 *            can be FLAG_SYNC_LOCAL or FLAG_SYNC_REMOTE
+	 *            can be FLAG_SYNC_LOCAL, FLAG_SYNC_REMOTE or both
 	 */
-	public void performSync(int flags) throws IOException {
+	public void performInitializationSync(int flags) throws IOException {
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
 		final int localVersion = prefs.getInt(PREF_KEY_LOCAL_DATA_VERSION, 0);
@@ -124,6 +126,9 @@ public class SyncHelper {
 			batch = new ArrayList<ContentProviderOperation>();
 		}
 		
+		/**
+		 * Should query remote data version before sync
+		 */
 		 if ((flags & FLAG_SYNC_REMOTE) != 0 && isOnline()) {
 			 LOGI(TAG, "Performing  remote sync");
 			 SpotsFetcher sf = new SpotsFetcher(mContext,"0");

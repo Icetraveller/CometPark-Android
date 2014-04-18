@@ -74,9 +74,9 @@ public class HomeActivity extends BaseActivity implements
 		FragmentManager fm = getSupportFragmentManager();
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
-		
-		
-		mViewPager.requestTransparentRegion(mViewPager);;
+
+		mViewPager.requestTransparentRegion(mViewPager);
+		;
 
 		String homeScreenLabel;
 		if (mViewPager != null) {
@@ -125,12 +125,13 @@ public class HomeActivity extends BaseActivity implements
 	protected void onResume() {
 		super.onResume();
 		process = new SyncProcessor(this);
-		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
+		process.execute(SyncHelper.FLAG_SYNC_LOCAL
+				| SyncHelper.FLAG_SYNC_REMOTE);
 	}
 
 	@Override
 	protected void onDestroy() {
-		//TODO should test to say if the data will be corrupt;
+		// TODO should test to say if the data will be corrupt;
 		process.cancel(true);
 		if (mRegisterTask != null) {
 			mRegisterTask.cancel(true);
@@ -182,8 +183,7 @@ public class HomeActivity extends BaseActivity implements
 		public HomePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
-		
-		
+
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
@@ -269,6 +269,5 @@ public class HomeActivity extends BaseActivity implements
 			}
 		}
 	}
-
 
 }

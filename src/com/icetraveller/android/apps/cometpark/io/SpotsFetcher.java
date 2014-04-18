@@ -26,22 +26,48 @@ public class SpotsFetcher {
 	private static final String TAG = makeLogTag(SpotsFetcher.class);
 
 	private Context mContext;
-	private String lotId = "0";
+	private String lotId;
 
+	/**
+	 * Used for registering listen to a specific lot
+	 * @param context
+	 * @param lotId The Parking Lot Id
+	 */
 	public SpotsFetcher(Context context, String lotId) {
 		mContext = context;
 		this.lotId = lotId;
 	}
+	
+	/**
+	 * use when request spots info data for create
+	 * @param context
+	 */
+	public SpotsFetcher(Context context) {
+		mContext = context;
+		this.lotId = "";
+	}
 
-	public ArrayList<ContentProviderOperation> fetchAndParse()
+	
+	public ArrayList<ContentProviderOperation> fetchAndParse(int type)
 			throws IOException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		String url = Config.SERVER_URL + "/request";
+		
+		switch(type){
+		/** Request spots info and wait for immediate response */
+		case Config.TYPE_REQUEST_SPOTS_INFO:{
+			break;
+		}
+		/** register listening the Lot, and wait for immediate response */
+		case Config.TYPE_REQUEST_SPOTS_IN_LOT:{
+			
+		}
+			
+		}
 
 		BasicHttpClient httpClient = new BasicHttpClient();
 		ParameterMap params = httpClient.newParams()
-				.add("" + Config._TYPE, "" + Config.TYPE_REQUEST_SPOTS_IN_LOT)
-				.add(Config.JSON_KEY_LOT, lotId);
+				.add("" + Config.TYPE, "" + Config.TYPE_REQUEST_SPOTS_IN_LOT);
 		HttpResponse httpResponse = httpClient.post(url, params);
 		String jsonMessage = httpResponse.getBodyAsString();
 		return parse(jsonMessage);
