@@ -24,4 +24,9 @@
     <color name="map_floorselect_inactive">#FF333333</color>
 
     <color name="dark_divider">#32000000</color>
+    
+    <color name="level_easy">#99CC00</color>
+    <color name="level_avg">#FFBB33</color>
+    <color name="level_hard">#FF4444</color>
+    
 </resources>

@@ -382,7 +382,6 @@ public class MapFragment extends SupportMapFragment implements
 		int LOT_LOCATION_TOP_RIGHT = 5;
 		int LOT_LOCATION_BOTTOM_LEFT = 6;
 		int LOT_LOCATION_BOTTOM_RIGHT = 7;
-
 	}
 
 	// loaders
@@ -468,7 +467,7 @@ public class MapFragment extends SupportMapFragment implements
 					File f = MapUtils.getTileFile(getActivity()
 							.getApplicationContext(), file);
 					if (f != null) {
-						double[] coordinates = MapUtils.stringsToDoubles(
+						double[] coordinates = MapUtils.stringsToProjections(
 								topLeft, topRight, bottomLeft, bottomRight);
 						Log.d(TAG, "file:" + file);
 						addTileProvider(lotId, f, coordinates);
@@ -521,25 +520,25 @@ public class MapFragment extends SupportMapFragment implements
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-//			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
-//			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
-//			
-//			for (Spot spot : spotsJson.spots) {
-//				MarkerModel model = mMarkers.get(spot.id);
-//				model.status = spot.status;
-//				Marker m = model.marker;
-//				m.setSnippet(""+model.status);
-//				m.setVisible(false);
-////				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
-////				if(mMarkersLot.get(currentLot).contains(m))
-////					LOGD(TAG,"WOOOOW");
-////				int i = mMarkersLot.get(currentLot).indexOf(m);
-////				Marker m2= mMarkersLot.get(currentLot).get(i);
-////				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
-////				LOGD(TAG,"awdaw");
-//			}
-//			showMarker();
-//			Log.d(TAG, newMessage);
+			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
+			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
+			
+			for (Spot spot : spotsJson.spots) {
+				MarkerModel model = mMarkers.get(spot.id);
+				model.status = spot.status;
+				Marker m = model.marker;
+				m.setSnippet(""+model.status);
+				m.setVisible(false);
+//				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
+//				if(mMarkersLot.get(currentLot).contains(m))
+//					LOGD(TAG,"WOOOOW");
+//				int i = mMarkersLot.get(currentLot).indexOf(m);
+//				Marker m2= mMarkersLot.get(currentLot).get(i);
+//				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
+//				LOGD(TAG,"awdaw");
+			}
+			showMarker();
+			Log.d(TAG, newMessage);
 		}
 	};
 

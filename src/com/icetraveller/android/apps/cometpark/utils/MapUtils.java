@@ -216,5 +216,20 @@ public class MapUtils {
 		}
 		return result;
 	}
+	public static double[] stringsToProjections(String[]... args){
+		if(args.length != 4){
+			//wrong
+		}
+		double[] result = new double[8];
+		int i = 0;
+		
+		for(String[] strings: args){
+			double[] projections = convertToProjection(Double.parseDouble(strings[0]),Double.parseDouble(strings[1]));
+			result[i] = projections[0];
+			result[i+1] = projections[1];
+			i+=2;
+		}
+		return result;
+	}
 	
 }

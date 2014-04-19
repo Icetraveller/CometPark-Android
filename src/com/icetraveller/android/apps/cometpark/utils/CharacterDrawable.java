@@ -13,7 +13,7 @@ public class CharacterDrawable extends ColorDrawable {
     private final Paint textPaint;
     private final Paint borderPaint;
     private static final int STROKE_WIDTH = 10;
-    private static final float SHADE_FACTOR = 0.9f;
+    private static final float SHADE_FACTOR = 1f;
 
     public CharacterDrawable(char character, int color) {
         super(color);

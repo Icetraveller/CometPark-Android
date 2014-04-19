@@ -139,8 +139,6 @@ public class SyncHelper {
 			 batch.addAll(new LotsFetcher(mContext).fetchAndParse());
 			 batch.addAll(new LotStatusFetcher().fetchAndParse());
 			 batch.addAll(new SpotsFetcher(mContext).fetchAndParse(Config.TYPE_REQUEST_SPOTS_INFO));
-			 
-			 //lots
 		 }
 		 
 		 // Apply all queued up remaining batch operations (only remote content at this point).

@@ -13,8 +13,12 @@ public class Lot {
 	public Location bottomLeft = new Location();
 	public Location bottomRight = new Location();
 
-	public String getInfo(Location l) {
-		return l.locationInfo();
+//	public String getInfo(Location l) {
+//		return l.locationInfo();
+//	}
+	
+	public String getInfo(Location l){
+		return l.convertToString();
 	}
 
 }
@@ -26,5 +30,9 @@ class Location {
 	public String locationInfo() {
 		double[] result = MapUtils.convertToProjection(lat, lng);
 		return result[0] + "," + result[1];
+	}
+	
+	public String convertToString(){
+		return lat+","+lng;
 	}
 }
