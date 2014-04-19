@@ -69,8 +69,7 @@ public class MapFragment extends SupportMapFragment implements
 
 	// currently displayed lot
 	private String INITIAL_LOT = "0";
-	private String currentLot = "";
-	private String[] mLots;
+	private String mLot = "";
 
 	private static final String TAG = makeLogTag(MapFragment.class);
 
@@ -78,13 +77,11 @@ public class MapFragment extends SupportMapFragment implements
 	private HashMap<String, TileProvider> mTileProviders;
 	private HashMap<String, TileOverlay> mTileOverlays;
 
-	private int numberOfLots = 1;
-
 	// Markers stored by id
 	private HashMap<String, MarkerModel> mMarkers = null;
 
 	// Markers stored by floor
-	private HashMap<String, ArrayList<Marker>> mMarkersLot = null;
+	private ArrayList<Marker> mMarkersLot = null;
 
 	private boolean mLotsLoaded = false;
 	private boolean mMarkersLoaded = false;
@@ -98,7 +95,7 @@ public class MapFragment extends SupportMapFragment implements
 	// Padding for #centerMap
 	private int mShiftRight = 0;
 	private int mShiftTop = 0;
-	
+
 	private int userPermitType = -1;
 
 	// Screen DPI
@@ -115,23 +112,25 @@ public class MapFragment extends SupportMapFragment implements
 		super.onCreate(savedInstanceState);
 
 		// read mLots
-		mLots = getArguments().getString(MapUtils.SHOW_LOT).split(",");
-		numberOfLots = mLots.length;
-
+		mLot = getArguments().getString(MapUtils.SHOW_LOT);
+		if (TextUtils.isEmpty(mLot)) {
+			mLot = INITIAL_LOT;
+		}
 		LOGD(TAG, "Map onCreate");
 
 		clearMap();
 
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
-//		setHasOptionsMenu(true);
-		
-		getActivity().registerReceiver(mHandleMessageReceiver, new IntentFilter(
-				Config.DISPLAY_MESSAGE_ACTION));
-		
+		// setHasOptionsMenu(true);
+
+		getActivity().registerReceiver(mHandleMessageReceiver,
+				new IntentFilter(Config.DISPLAY_MESSAGE_ACTION));
+
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
-		String permitTypeString = prefs.getString(SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
+		String permitTypeString = prefs.getString(
+				SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
 		userPermitType = Integer.parseInt(permitTypeString);
 	}
 
@@ -180,11 +179,10 @@ public class MapFragment extends SupportMapFragment implements
 		lm.initLoader(LotsQuery._TOKEN, null, this);
 		lm.initLoader(SpotsQuery._TOKEN, null, this);
 
-
 		return v;
 	}
-	
-	public void onDestroy (){
+
+	public void onDestroy() {
 		getActivity().unregisterReceiver(mHandleMessageReceiver);
 		super.onDestroy();
 	}
@@ -214,56 +212,51 @@ public class MapFragment extends SupportMapFragment implements
 		mTileOverlays = new HashMap<String, TileOverlay>();
 
 		mMarkers = new HashMap<String, MarkerModel>();
-		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
-		// initialise floor marker lists
-		for (String s : mLots) {
-			mMarkersLot.put(s, new ArrayList<Marker>());
-		}
+		mMarkersLot = new ArrayList<Marker>();
 	}
 
 	private void enableLot() {
 		if (mLotsLoaded && mMarkersLoaded && mShow)
-			showLot(INITIAL_LOT);
+			showLot(mLot);
 	}
 
 	private void showLot(String lot) {
-		if (!currentLot.equals(lot)) {
-			// hide old overlay
-			mTileOverlays.get(lot).setVisible(false);
-			for (Marker m : mMarkersLot.get(lot)) {
-				m.setVisible(false);
-			}
-			currentLot = lot;
-			// show the lot overlay
-			if (mTileOverlays.get(lot) != null) {
-				mTileOverlays.get(lot).setVisible(true);
-			}
-
-			// show all markers
-			showMarker();
+		// hide old overlay
+		mTileOverlays.get(lot).setVisible(false);
+		for (Marker m : mMarkersLot) {
+			m.setVisible(false);
 		}
+		mLot = lot;
+		// show the lot overlay
+		if (mTileOverlays.get(lot) != null) {
+			mTileOverlays.get(lot).setVisible(true);
+		}
+
+		// show all markers
+		showMarker();
 	}
 
 	private void disableLot() {
-		if (currentLot.equals(currentLot)) {
-			// hide the lot overlay
-			if (mTileOverlays.get(currentLot) != null) {
-				mTileOverlays.get(currentLot).setVisible(false);
-			}
+		// hide the lot overlay
+		if (mTileOverlays.get(mLot) != null) {
+			mTileOverlays.get(mLot).setVisible(false);
 		}
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+		if (TextUtils.isEmpty(mLot)) {
+			mLot = INITIAL_LOT;
+		}
 		switch (id) {
 		case SpotsQuery._TOKEN: {
-			Uri uri = CometParkContract.Spots.buildSpotsInLot(INITIAL_LOT);
+			Uri uri = CometParkContract.Spots.buildSpotsInLot(mLot);
 			return new CursorLoader(getActivity(), uri, SpotsQuery.PROJECTION,
 					null, null, null);
 		}
 		case LotsQuery._TOKEN: {
-			Uri uri = CometParkContract.Lots.buildLotUri(INITIAL_LOT);// TODO
-																		// currently
+			Uri uri = CometParkContract.Lots.buildLotUri(mLot);// TODO
+																// currently
 			// I support
 			// only one
 			return new CursorLoader(getActivity(), uri, LotsQuery.PROJECTION,
@@ -290,49 +283,48 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		
+
 	}
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
-		if (TextUtils.isEmpty(currentLot)) {
-            return;
-        }
-		
-		mShow = cameraPosition.zoom >= 18;
-		// if(mShow){
-		// enableLot();
-		//
-		// }else{
-		// showMarker(mShow);
-		// currentLot = "";
-		// disableLot();
-		// }
+//		if (TextUtils.isEmpty(mLot)) {
+//			return;
+//		}
+//		mShow = cameraPosition.zoom >= 18;
+//		if (mShow) {
+//			enableLot();
+//
+//		} else {
+//			showMarker();
+//			disableLot();
+//		}
 	}
 
 	private void showMarker() {
-		if(!mShow){
+		if (!mShow) {
 			return;
 		}
-		Log.d(TAG, "userPermitType= "+userPermitType);
+		Log.d(TAG, "userPermitType= " + userPermitType);
 		boolean permitFlag = true;
-		for (Marker m : mMarkersLot.get(currentLot)) {
+		for (Marker m : mMarkersLot) {
 			String spotId = m.getTitle();
 			MarkerModel model = mMarkers.get(spotId);
-			permitFlag= userPermitType >= model.type;
-			if((model.status == Config.STATUS_AVAILABLE) && permitFlag){
+			permitFlag = userPermitType >= model.type;
+			if ((model.status == Config.STATUS_AVAILABLE) && permitFlag) {
 				m.setVisible(true);
-			}else{
+			} else {
 				m.setVisible(false);
 			}
 		}
 	}
+
 	private void clearMarker() {
-		if(!mShow || !mMarkersLoaded){
+		if (!mShow || !mMarkersLoaded) {
 			return;
 		}
-		for (Marker m : mMarkersLot.get(currentLot)) {
-				m.setVisible(false);
+		for (Marker m : mMarkersLot) {
+			m.setVisible(false);
 		}
 	}
 
@@ -401,23 +393,23 @@ public class MapFragment extends SupportMapFragment implements
 				switch (permitType) {
 				case Config.PERMIT_TYPE_EXTENDED:
 					icon = BitmapDescriptorFactory
-					.fromResource(R.drawable.marker_extended);
+							.fromResource(R.drawable.marker_extended);
 					break;
 				case Config.PERMIT_TYPE_GREEN:
 					icon = BitmapDescriptorFactory
-					.fromResource(R.drawable.marker_green);
+							.fromResource(R.drawable.marker_green);
 					break;
 				case Config.PERMIT_TYPE_GOLD:
 					icon = BitmapDescriptorFactory
-					.fromResource(R.drawable.marker_gold);
+							.fromResource(R.drawable.marker_gold);
 					break;
 				case Config.PERMIT_TYPE_ORANGE:
 					icon = BitmapDescriptorFactory
-					.fromResource(R.drawable.marker_orange);
+							.fromResource(R.drawable.marker_orange);
 					break;
 				case Config.PERMIT_TYPE_PURPLE:
 					icon = BitmapDescriptorFactory
-					.fromResource(R.drawable.marker_purple);
+							.fromResource(R.drawable.marker_purple);
 					break;
 				default:
 					icon = BitmapDescriptorFactory
@@ -426,14 +418,12 @@ public class MapFragment extends SupportMapFragment implements
 
 				// add marker to map
 				if (icon != null) {
-					Marker m = mMap
-							.addMarker(new MarkerOptions()
-									.position(new LatLng(lat, lng))
-									.title(spotId).snippet(""+status)
-									.icon(icon).visible(false));
+					Marker m = mMap.addMarker(new MarkerOptions()
+							.position(new LatLng(lat, lng)).title(spotId)
+							.snippet("" + status).icon(icon).visible(false));
 					MarkerModel model = new MarkerModel(spotId, status,
 							permitType, m);
-					mMarkersLot.get(lotId).add(m);
+					mMarkersLot.add(m);
 					mMarkers.put(spotId, model);
 				}
 				cursor.moveToNext();
@@ -515,27 +505,20 @@ public class MapFragment extends SupportMapFragment implements
 			this.marker = marker;
 		}
 	}
-	
-	
+
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
+			String newMessage = intent.getExtras().getString(
+					Config.EXTRA_MESSAGE);
 			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
-			
+
 			for (Spot spot : spotsJson.spots) {
 				MarkerModel model = mMarkers.get(spot.id);
 				model.status = spot.status;
 				Marker m = model.marker;
-				m.setSnippet(""+model.status);
+				m.setSnippet("" + model.status);
 				m.setVisible(false);
-//				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
-//				if(mMarkersLot.get(currentLot).contains(m))
-//					LOGD(TAG,"WOOOOW");
-//				int i = mMarkersLot.get(currentLot).indexOf(m);
-//				Marker m2= mMarkersLot.get(currentLot).get(i);
-//				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
-//				LOGD(TAG,"awdaw");
 			}
 			showMarker();
 			Log.d(TAG, newMessage);
