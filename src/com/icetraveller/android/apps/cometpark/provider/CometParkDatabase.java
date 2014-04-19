@@ -1,6 +1,7 @@
 package com.icetraveller.android.apps.cometpark.provider;
 
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LotColumns;
+import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LotStatusColumns;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.SpotColumns;
 
 import android.content.Context;
@@ -27,6 +28,7 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 		String SPOTS = "spots";
 //		String LOCATIONS = "locations";
 		String LOTS = "lots";
+		String LOT_STATUS = "lot_status";
 	}
 	
 	private interface References {
@@ -62,6 +64,11 @@ public class CometParkDatabase extends SQLiteOpenHelper{
 				+ LotColumns.LOCATION_BOTTOM_LEFT + " TEXT NOT NULL, "
 				+ LotColumns.LOCATION_BOTTOM_RIGHT + " TEXT NOT NULL, "
 				+ "UNIQUE (" + LotColumns.ID+ ") ON CONFLICT REPLACE)");
+		db.execSQL("CREATE TABLE " + Tables.LOT_STATUS+" ("
+				+BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ LotStatusColumns.ID + " TEXT NOT NULL,"
+				+ LotStatusColumns.AVAILABLE_SPOTS_COUNT + " TEXT NOT NULL,"
+				+ "UNIQUE (" + LotStatusColumns.ID+ ") ON CONFLICT REPLACE)");
 //		db.execSQL("CREATE TABLE "+Tables.LOCATIONS+ " ("
 //				+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 //				+ LocationColumns.ID + " TEXT NOT NULL,"

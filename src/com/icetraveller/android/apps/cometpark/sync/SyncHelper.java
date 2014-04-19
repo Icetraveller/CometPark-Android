@@ -14,8 +14,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.io.JSONHandler;
+import com.icetraveller.android.apps.cometpark.io.LotStatusFetcher;
+import com.icetraveller.android.apps.cometpark.io.LotsFetcher;
 import com.icetraveller.android.apps.cometpark.io.LotsHandler;
 import com.icetraveller.android.apps.cometpark.io.SpotsFetcher;
 import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
@@ -131,8 +134,13 @@ public class SyncHelper {
 		 */
 		 if ((flags & FLAG_SYNC_REMOTE) != 0 && isOnline()) {
 			 LOGI(TAG, "Performing  remote sync");
-			 SpotsFetcher sf = new SpotsFetcher(mContext,"0");
-			 batch = sf.fetchAndParse();
+			 
+			 //TODO should query server for data version before any sync
+			 batch.addAll(new LotsFetcher(mContext).fetchAndParse());
+			 batch.addAll(new LotStatusFetcher().fetchAndParse());
+			 batch.addAll(new SpotsFetcher(mContext).fetchAndParse(Config.TYPE_REQUEST_SPOTS_INFO));
+			 
+			 //lots
 		 }
 		 
 		 // Apply all queued up remaining batch operations (only remote content at this point).

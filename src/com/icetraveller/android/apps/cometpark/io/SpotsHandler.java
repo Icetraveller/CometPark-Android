@@ -36,7 +36,7 @@ public class SpotsHandler extends JSONHandler {
 		return batch;
 	}
 	
-	private void parseSpot(Spot spot,
+	public static void parseSpot(Spot spot,
 			ArrayList<ContentProviderOperation> batch) {
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 				.newInsert(CometParkContract.Spots.buildUri());

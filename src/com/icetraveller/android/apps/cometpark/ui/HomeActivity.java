@@ -34,6 +34,7 @@ import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.gcm.ServerUtilities;
 import com.icetraveller.android.apps.cometpark.io.JSONHandler;
+import com.icetraveller.android.apps.cometpark.io.LotStatusFetcher;
 import com.icetraveller.android.apps.cometpark.io.LotsHandler;
 import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;

@@ -2,6 +2,8 @@ package com.icetraveller.android.apps.cometpark.sync;
 
 import java.io.IOException;
 
+import com.icetraveller.android.apps.cometpark.io.LotStatusFetcher;
+
 import android.content.Context;
 import android.os.AsyncTask;
 

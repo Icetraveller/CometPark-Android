@@ -3,6 +3,7 @@ package com.icetraveller.android.apps.cometpark.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LotStatus;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Lots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkDatabase.Tables;
@@ -47,11 +48,13 @@ public class CometParkProvider extends ContentProvider {
 	private static final int LOTS_ID_STATUS = 207;
 	private static final int LOTS_ID_MAP_TILES_FILE = 208;
 	private static final int LOTS_ID_MAP_TILES_URL = 209;
-
+	
 	private static final int LOCATIONS = 300;
 	private static final int LOCATIONS_ID = 301;
 	private static final int LOCATIONS_ID_LATITUDE = 302;
 	private static final int LOCATIONS_ID_LONGITUDE = 303;
+	
+	private static final int LOT_STATUS = 400;
 
 	/**
 	 * Build and return a {@link UriMatcher} that catches all {@link Uri}
@@ -92,6 +95,8 @@ public class CometParkProvider extends ContentProvider {
 
 		matcher.addURI(authority, "locations", LOCATIONS);
 		matcher.addURI(authority, "locations/*", LOCATIONS_ID);
+		
+		matcher.addURI(authority, "lot_status", LOT_STATUS);
 
 		return matcher;
 	}
@@ -128,6 +133,8 @@ public class CometParkProvider extends ContentProvider {
 //			return Locations.CONTENT_TYPE;
 //		case LOCATIONS_ID:
 //			return Locations.CONTENT_ITEM_TYPE;
+		case LOT_STATUS:
+			return LotStatus.CONTENT_TYPE;
 		default:
 			throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -166,6 +173,11 @@ public class CometParkProvider extends ContentProvider {
 			db.insert(Tables.LOTS, null, values);
 			notifyChange(uri);
 			return Lots.buildLotUri(values.getAsString(Lots.ID));
+		}
+		case LOT_STATUS:{
+			db.insert(Tables.LOT_STATUS, null, values);
+			notifyChange(uri);
+			return LotStatus.CONTENT_URI;
 		}
 //		case LOCATIONS: {
 //			db.insert(Tables.LOCATIONS, null, values);
@@ -258,6 +270,9 @@ public class CometParkProvider extends ContentProvider {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
 		}
+		case LOT_STATUS:{
+			return builder.table(Tables.LOT_STATUS);
+		}
 //		case LOCATIONS: {
 //			return builder.table(Tables.LOCATIONS);
 //		}
@@ -300,6 +315,9 @@ public class CometParkProvider extends ContentProvider {
 		case LOTS_ID: {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
+		}
+		case LOT_STATUS:{
+			return builder.table(Tables.LOT_STATUS);
 		}
 //		case LOCATIONS: {
 //			return builder.table(Tables.LOCATIONS);

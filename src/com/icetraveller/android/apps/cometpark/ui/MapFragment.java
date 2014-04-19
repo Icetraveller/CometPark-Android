@@ -517,87 +517,29 @@ public class MapFragment extends SupportMapFragment implements
 		}
 	}
 	
-//	/**
-//	 * For test only
-//	 */
-//	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
-//		super.onCreateOptionsMenu(menu, inflater);
-//		inflater.inflate(R.menu.map, menu);
-//	}
-//	
-//	public boolean onOptionsItemSelected (MenuItem item){
-//		switch (item.getItemId()) {
-//		case R.id.menu_refresh:
-//			triggerRefresh();
-//			return true;
-//		}
-//		return super.onOptionsItemSelected(item);
-//	}
-//	boolean flag = true;
-//	Thread a;
-//	
-//	public void triggerRefresh(){
-//		if(a !=null)
-//			return;
-//		
-//		a = new Thread(new Runnable(){
-//			@Override
-//			public void run() {
-//				while(true){
-//					if(!flag){
-//						continue;
-//					}else{
-//						Log.d(TAG, "lol");
-//						flag = false;
-//						SyncProcessor process = new SyncProcessor(MapFragment.this);
-//						process.execute(getActivity());
-//					}
-//				}
-//			}});
-//		a.start();
-//		
-//	}
-//
-//	@Override
-//	public void done() {
-//		LoaderManager lm = getActivity().getSupportLoaderManager();
-//		for (Marker m : mMarkersLot.get(currentLot)) {
-//			if(m==null) continue;
-//				m.setVisible(false);
-//		}
-//		mMarkers = new HashMap<String, MarkerModel>();
-//		mMarkersLot = new HashMap<String, ArrayList<Marker>>();
-//		// initialise floor marker lists
-//		for (String s : mLots) {
-//			mMarkersLot.put(s, new ArrayList<Marker>());
-//		}
-//		currentLot = "";
-//		lm.restartLoader(SpotsQuery._TOKEN, null, this);
-//		flag = true;
-//	}
 	
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
-			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
-			
-			for (Spot spot : spotsJson.spots) {
-				MarkerModel model = mMarkers.get(spot.id);
-				model.status = spot.status;
-				Marker m = model.marker;
-				m.setSnippet(""+model.status);
-				m.setVisible(false);
-//				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
-//				if(mMarkersLot.get(currentLot).contains(m))
-//					LOGD(TAG,"WOOOOW");
-//				int i = mMarkersLot.get(currentLot).indexOf(m);
-//				Marker m2= mMarkersLot.get(currentLot).get(i);
-//				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
-//				LOGD(TAG,"awdaw");
-			}
-			showMarker();
-			Log.d(TAG, newMessage);
+//			String newMessage = intent.getExtras().getString(Config.EXTRA_MESSAGE);
+//			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);
+//			
+//			for (Spot spot : spotsJson.spots) {
+//				MarkerModel model = mMarkers.get(spot.id);
+//				model.status = spot.status;
+//				Marker m = model.marker;
+//				m.setSnippet(""+model.status);
+//				m.setVisible(false);
+////				LOGD(TAG, "title:"+m.getTitle()+" getSnippet"+m.getSnippet()+" lat:"+m.getPosition().toString());
+////				if(mMarkersLot.get(currentLot).contains(m))
+////					LOGD(TAG,"WOOOOW");
+////				int i = mMarkersLot.get(currentLot).indexOf(m);
+////				Marker m2= mMarkersLot.get(currentLot).get(i);
+////				LOGD(TAG, "title:"+m2.getTitle()+" getSnippet"+m2.getSnippet()+" lat:"+m2.getPosition().toString());
+////				LOGD(TAG,"awdaw");
+//			}
+//			showMarker();
+//			Log.d(TAG, newMessage);
 		}
 	};
 

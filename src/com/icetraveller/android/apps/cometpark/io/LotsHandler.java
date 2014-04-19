@@ -29,11 +29,18 @@ public class LotsHandler extends JSONHandler {
 	public ArrayList<ContentProviderOperation> parse(String json)
 			throws IOException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
+		deleteOldLots(batch);
 		Lots lotsJson = new Gson().fromJson(json, Lots.class);
 		for (Lot lot : lotsJson.lots) {
 			parseLot(lot, batch);
 		}
 		return batch;
+	}
+	
+	private void deleteOldLots(ArrayList<ContentProviderOperation> batch){
+		ContentProviderOperation.Builder builder = ContentProviderOperation
+				.newDelete(CometParkContract.Lots.CONTENT_URI);
+		batch.add(builder.build());
 	}
 
 	private void parseLot(Lot lot,
@@ -54,6 +61,16 @@ public class LotsHandler extends JSONHandler {
 		builder.withValue(CometParkContract.Lots.LOCATION_BOTTOM_RIGHT,
 				lot.getInfo(lot.bottomRight));
 		builder.withValue(CometParkContract.Lots.STATUS, lot.status);
+		batch.add(builder.build());
+		
+		handleLotStatus(lot, batch);
+	}
+	
+	private void handleLotStatus(Lot lot, ArrayList<ContentProviderOperation> batch){
+		ContentProviderOperation.Builder builder = ContentProviderOperation
+				.newInsert(CometParkContract.LotStatus.CONTENT_URI);
+		builder.withValue(CometParkContract.LotStatus.ID, lot.id);
+		builder.withValue(CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT, "");
 		batch.add(builder.build());
 	}
 	

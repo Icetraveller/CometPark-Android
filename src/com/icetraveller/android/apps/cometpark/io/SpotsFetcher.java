@@ -17,11 +17,12 @@ import com.turbomanage.httpclient.ParameterMap;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
-public class SpotsFetcher {
+public class SpotsFetcher extends SpotsHandler{
 
 	private static final String TAG = makeLogTag(SpotsFetcher.class);
 
@@ -30,71 +31,107 @@ public class SpotsFetcher {
 
 	/**
 	 * Used for registering listen to a specific lot
+	 * 
 	 * @param context
-	 * @param lotId The Parking Lot Id
+	 * @param lotId
+	 *            The Parking Lot Id
 	 */
 	public SpotsFetcher(Context context, String lotId) {
+		super(context);
 		mContext = context;
 		this.lotId = lotId;
 	}
-	
+
 	/**
 	 * use when request spots info data for create
+	 * 
 	 * @param context
 	 */
 	public SpotsFetcher(Context context) {
+		super(context);
 		mContext = context;
 		this.lotId = "";
 	}
 
-	
+	/**
+	 * 
+	 * @param type could be Config.TYPE_REQUEST_SPOTS_INFO or Config.TYPE_REQUEST_SPOTS_IN_LOT
+	 * @return
+	 * @throws IOException
+	 */
 	public ArrayList<ContentProviderOperation> fetchAndParse(int type)
 			throws IOException {
-		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		String url = Config.SERVER_URL + "/request";
-		
-		switch(type){
+		BasicHttpClient httpClient = new BasicHttpClient();
+		ParameterMap params = null;
+		switch (type) {
 		/** Request spots info and wait for immediate response */
-		case Config.TYPE_REQUEST_SPOTS_INFO:{
+		case Config.TYPE_REQUEST_SPOTS_INFO: {
+			params = httpClient.newParams().add("" + Config.TYPE,
+					"" + Config.TYPE_REQUEST_SPOTS_INFO);
 			break;
 		}
 		/** register listening the Lot, and wait for immediate response */
-		case Config.TYPE_REQUEST_SPOTS_IN_LOT:{
-			
-		}
-			
+		case Config.TYPE_REQUEST_SPOTS_IN_LOT: {
+			if (TextUtils.isEmpty(lotId)) {
+				throw new IOException();// TODO
+			}
+			params = httpClient
+					.newParams()
+					.add("" + Config.TYPE,
+							"" + Config.TYPE_REQUEST_SPOTS_IN_LOT)
+					.add(Config.JSON_KEY_LOT, lotId);
+			break;
 		}
 
-		BasicHttpClient httpClient = new BasicHttpClient();
-		ParameterMap params = httpClient.newParams()
-				.add("" + Config.TYPE, "" + Config.TYPE_REQUEST_SPOTS_IN_LOT);
-		HttpResponse httpResponse = httpClient.post(url, params);
-		String jsonMessage = httpResponse.getBodyAsString();
-		return parse(jsonMessage);
-	}
-	
-	public ArrayList<ContentProviderOperation> simpleUpdate(String jsonMessage)
-			throws IOException {
-		return parse(jsonMessage);
+		}
+
+		if (params != null) {
+			HttpResponse httpResponse = httpClient.post(url, params);
+			String jsonMessage = httpResponse.getBodyAsString();
+			return parse(jsonMessage, type);
+		} else {
+			return null;
+		}
 	}
 
-	public ArrayList<ContentProviderOperation> parse(String json)
+	public ArrayList<ContentProviderOperation> parse(String json, int type)
 			throws IOException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
-		Spots spotsJson = new Gson().fromJson(json, Spots.class);
-		for (Spot spot : spotsJson.spots) {
-			updateSpot(spot, batch);
+		switch (type) {
+		case Config.TYPE_REQUEST_SPOTS_INFO: {
+			deleteOldSpots(batch);
+			Spots spotsJson = new Gson().fromJson(json, Spots.class);
+			for (Spot spot : spotsJson.spots) {
+				SpotsHandler.parseSpot(spot, batch);
+			}
+			return batch;
 		}
-		return batch;
+		case Config.TYPE_REQUEST_SPOTS_IN_LOT: {
+			Spots spotsJson = new Gson().fromJson(json, Spots.class);
+			for (Spot spot : spotsJson.spots) {
+				updateSpot(spot, batch);
+			}
+			return batch;
+		}
+		default:
+			return null;
+		}
 	}
 	
-	public void updateSpot(Spot spot,
-			ArrayList<ContentProviderOperation> batch) {
-		ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(CometParkContract.Spots.CONTENT_URI);
+	private void deleteOldSpots( ArrayList<ContentProviderOperation> batch){
+		ContentProviderOperation.Builder builder = ContentProviderOperation
+				.newDelete(CometParkContract.Spots.CONTENT_URI);
+		batch.add(builder.build());
+	}
+
+	public void updateSpot(Spot spot, ArrayList<ContentProviderOperation> batch) {
+		ContentProviderOperation.Builder builder = ContentProviderOperation
+				.newUpdate(CometParkContract.Spots.CONTENT_URI);
 		builder.withValue(CometParkContract.Spots.STATUS, spot.status)
-		.withValue(CometParkContract.Spots.TYPE, spot.permit_type)
-		.withSelection(CometParkContract.Spots.ID+"=?", new String[]{spot.id});
-		Log.d(TAG, "spot:"+spot.id+" status: "+spot.status);
+				.withSelection(CometParkContract.Spots.ID + "=?",
+						new String[] { spot.id });
+		Log.d(TAG, "spot:" + spot.id + " status: " + spot.status);
 		batch.add(builder.build());
 	}
 

@@ -12,19 +12,19 @@ public class Lot {
 	public Location topRight = new Location();
 	public Location bottomLeft = new Location();
 	public Location bottomRight = new Location();
-	
-	public String getInfo(Location l){
+
+	public String getInfo(Location l) {
 		return l.locationInfo();
 	}
-	
+
 }
 
 class Location {
 	double lat;
 	double lng;
-	
-	public String locationInfo(){
+
+	public String locationInfo() {
 		double[] result = MapUtils.convertToProjection(lat, lng);
-		return result[0]+","+result[1];
+		return result[0] + "," + result[1];
 	}
 }
