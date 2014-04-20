@@ -27,6 +27,7 @@ public class RankAdapter extends CursorAdapter {
 	private Activity mActivity;
 	private boolean mIsDropDown;
 	private int userPermitType;
+	private String[] permitTypeStringArray;
 
 
 	public RankAdapter(FragmentActivity activity, boolean isDropDown) {
@@ -39,6 +40,7 @@ public class RankAdapter extends CursorAdapter {
 		String permitTypeString = prefs.getString(
 				SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
 		userPermitType = Integer.parseInt(permitTypeString);
+		permitTypeStringArray = mActivity.getResources().getStringArray(R.array.pref_permit_type_entry);
 	}
 
 	@Override
@@ -49,9 +51,15 @@ public class RankAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
+		if(!(cursor.getCount() >0)) 
+			return;
+		
 		String id = cursor.getString(LotsStatusQuery.ID);
+		view.setTag(id);
+		Log.d(TAG, "view Tag="+id);
 		String[] statusStrings = cursor.getString(
 				LotsStatusQuery.AVAILABLE_SPOTS_COUNT).split(",");
+		String name = cursor.getString(LotsStatusQuery.NAME);
 		int status = countAvailableSpots(statusStrings);
 		int max = Integer.parseInt(statusStrings[Config.PERMIT_TYPE_SUM].trim());
 		float level = 0;
@@ -63,10 +71,10 @@ public class RankAdapter extends CursorAdapter {
 		TextView primaryTextView,secondryTextView,levelTextView;
 		
 		primaryTextView = (TextView) view.findViewById(R.id.primaryLine);
-		primaryTextView.setText(id);
+		primaryTextView.setText("Lot "+name);
 		
 		secondryTextView = (TextView) view.findViewById(R.id.secondLine);
-		secondryTextView.setText(""+status);
+		secondryTextView.setText(level*100 +"% spots are available for you");
 		int c = Color.WHITE;
 		levelTextView = (TextView) view.findViewById(R.id.level);
 		if(level > 0.5){
@@ -77,11 +85,12 @@ public class RankAdapter extends CursorAdapter {
 			levelTextView.setText("Average");
 		}else{
 			c = mActivity.getResources().getColor(R.color.level_hard);
+			secondryTextView.setText("Almost full");
 			levelTextView.setText("Hard");
 		}
 		
 		ImageView icon = (ImageView) view.findViewById(R.id.icon);
-		CharacterDrawable drawable = new CharacterDrawable(id.toCharArray()[0], c);
+		CharacterDrawable drawable = new CharacterDrawable(name.toCharArray()[0], c);
 		icon.setImageDrawable(drawable); 
 	}
 	
@@ -89,7 +98,11 @@ public class RankAdapter extends CursorAdapter {
 		int i = 0;
 		int sum = 0;
 		while( i <= userPermitType){
+			try{
 			sum =sum + Integer.parseInt(ss[i].trim());
+			}catch(NumberFormatException e){
+				//ignore
+			}
 			i++;
 		}
 		return sum;
@@ -99,12 +112,13 @@ public class RankAdapter extends CursorAdapter {
 	public interface LotsStatusQuery {
 		int _TOKEN = 0x1;
 
-		String[] PROJECTION = { BaseColumns._ID,CometParkContract.LotStatus.ID,
-				CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT };
+		String[] PROJECTION = { BaseColumns._ID,CometParkContract.Lots.ID,
+				CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT,CometParkContract.Lots.NAME };
 
 		int _ID = 0;
 		int ID = 1;
 		int AVAILABLE_SPOTS_COUNT = 2;
+		int NAME = 3;
 	}
 
 }

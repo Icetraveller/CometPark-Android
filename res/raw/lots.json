@@ -3,7 +3,7 @@
   "lots": [
       {
           "id":"0",
-          "name":"Lot I",
+          "name":"I",
           "filename":"lot0.svg",
           "url":"somewhere",
           "status":0,
@@ -26,7 +26,7 @@
       },
       {
           "id":"1",
-          "name":"Lot A",
+          "name":"A",
           "filename":"lot0.svg",
           "url":"somewhere",
           "status":0,
@@ -49,7 +49,7 @@
       },
       {
           "id":"2",
-          "name":"Lot B",
+          "name":"B",
           "filename":"lot0.svg",
           "url":"somewhere",
           "status":0,
@@ -72,7 +72,7 @@
       },
       {
           "id":"3",
-          "name":"Lot H",
+          "name":"H",
           "filename":"lot0.svg",
           "url":"somewhere",
           "status":0,
@@ -95,7 +95,7 @@
       },
       {
           "id":"4",
-          "name":"Lot M",
+          "name":"M",
           "filename":"lot0.svg",
           "url":"somewhere",
           "status":0,

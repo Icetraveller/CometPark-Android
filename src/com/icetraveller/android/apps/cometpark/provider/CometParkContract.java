@@ -115,6 +115,10 @@ public final class CometParkContract {
 		public static String getLotId(Uri uri) {
 			return uri.getPathSegments().get(1);
 		}
+		
+		public static Uri buildLotsLotStatus(){
+			return CONTENT_URI.buildUpon().appendPath(PATH_LOT_STATUS).build();
+		}
 	}
 
 	public static class LotStatus implements LotStatusColumns, BaseColumns {

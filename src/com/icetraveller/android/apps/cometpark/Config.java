@@ -138,19 +138,31 @@ public class Config {
 	 /**
      * Intent used to display a message in the screen.
      */
+	public static final String MESSAGE = "message";
+	
     public static final String DISPLAY_MESSAGE_ACTION =
             "com.icetraveller.android.apps.cometpark.gcm.DISPLAY_MESSAGE";
+    
+    public static final String UPDATE_SPOTS_ACTION = 
+    		"com.icetraveller.android.apps.cometpark.gcm.UPDATE_SPOTS";
 
     /**
      * Intent's extra that contains the message to be displayed.
      */
     public static final String EXTRA_MESSAGE = "message";
 	
-	public static void displayMessage(Context context, String message) {
+	public static void displayMessage(Context context, String message, int type) {
     	Log.d("Config", "received");
-        Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
-        intent.putExtra(EXTRA_MESSAGE, message);
-        context.sendBroadcast(intent);
+    	Intent intent = null;
+    	switch(type){
+    	case BROADCAST_SPOTS_STATUS_UPDATE:
+    		intent = new Intent(UPDATE_SPOTS_ACTION);
+            intent.putExtra(EXTRA_MESSAGE, message);
+    		break;
+    	}
+        if(intent != null){
+        	context.sendBroadcast(intent);
+        }
     }
 
 }

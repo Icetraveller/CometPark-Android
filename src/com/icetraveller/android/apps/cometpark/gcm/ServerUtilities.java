@@ -68,7 +68,6 @@ public final class ServerUtilities {
                 post(serverUrl, params);
                 GCMRegistrar.setRegisteredOnServer(context, true);
                 String message = "registered";
-                Config.displayMessage(context, message);
                 return;
             } catch (IOException e) {
                 // Here we are simplifying and retrying on any error; in a real
@@ -92,7 +91,6 @@ public final class ServerUtilities {
             }
         }
         String message = "error";
-        Config.displayMessage(context, message);
     }
 
     /**
@@ -107,7 +105,6 @@ public final class ServerUtilities {
             post(serverUrl, params);
             GCMRegistrar.setRegisteredOnServer(context, false);
             String message = "unregistered";
-            Config.displayMessage(context, message);
         } catch (IOException e) {
             // At this point the device is unregistered from GCM, but still
             // registered in the server.
@@ -115,7 +112,6 @@ public final class ServerUtilities {
             // if the server tries to send a message to the device, it will get
             // a "NotRegistered" error message and should unregister the device.
             String message = "error";
-            Config.displayMessage(context, message);
         }
     }
 

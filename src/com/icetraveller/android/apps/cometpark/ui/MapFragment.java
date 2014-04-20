@@ -65,7 +65,7 @@ public class MapFragment extends SupportMapFragment implements
 	private static final LatLng TEST_SPOT2 = new LatLng(32.985960, -96.749650);
 	private static final float CAMERA_ZOOM = 18f;
 
-	private static final String SHOW_ALL = "show_all";
+	public static final String SHOW_ALL = "show_all";
 
 	// currently displayed lot
 	private String INITIAL_LOT = "0";
@@ -85,6 +85,7 @@ public class MapFragment extends SupportMapFragment implements
 
 	private boolean mLotsLoaded = false;
 	private boolean mMarkersLoaded = false;
+	private boolean wholeCampusMode = false;
 
 	// Show markers at default zoom level
 	private boolean mShow = true;
@@ -113,8 +114,9 @@ public class MapFragment extends SupportMapFragment implements
 
 		// read mLots
 		mLot = getArguments().getString(MapUtils.SHOW_LOT);
-		if (TextUtils.isEmpty(mLot)) {
-			mLot = INITIAL_LOT;
+		if (mLot.equals(SHOW_ALL)) {
+			// enter whole campus mode
+			wholeCampusMode = true;
 		}
 		LOGD(TAG, "Map onCreate");
 
@@ -125,7 +127,7 @@ public class MapFragment extends SupportMapFragment implements
 		// setHasOptionsMenu(true);
 
 		getActivity().registerReceiver(mHandleMessageReceiver,
-				new IntentFilter(Config.DISPLAY_MESSAGE_ACTION));
+				new IntentFilter(Config.UPDATE_SPOTS_ACTION));
 
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
@@ -174,10 +176,13 @@ public class MapFragment extends SupportMapFragment implements
 		if (mMap == null) {
 			setupMap(true);
 		}
-
-		LoaderManager lm = getActivity().getSupportLoaderManager();
-		lm.initLoader(LotsQuery._TOKEN, null, this);
-		lm.initLoader(SpotsQuery._TOKEN, null, this);
+		if (!wholeCampusMode) {
+			LoaderManager lm = getActivity().getSupportLoaderManager();
+			lm.initLoader(LotsQuery._TOKEN, null, this);
+			lm.initLoader(SpotsQuery._TOKEN, null, this);
+		}else{
+			
+		}
 
 		return v;
 	}
@@ -191,6 +196,7 @@ public class MapFragment extends SupportMapFragment implements
 		mMap = getMap();
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnCameraChangeListener(this);
+		mMap.setMyLocationEnabled(true);
 		if (resetCamera) {
 			mMap.moveCamera(CameraUpdateFactory
 					.newCameraPosition(CameraPosition.fromLatLngZoom(
@@ -288,17 +294,17 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
-//		if (TextUtils.isEmpty(mLot)) {
-//			return;
-//		}
-//		mShow = cameraPosition.zoom >= 18;
-//		if (mShow) {
-//			enableLot();
-//
-//		} else {
-//			showMarker();
-//			disableLot();
-//		}
+		// if (TextUtils.isEmpty(mLot)) {
+		// return;
+		// }
+		// mShow = cameraPosition.zoom >= 18;
+		// if (mShow) {
+		// enableLot();
+		//
+		// } else {
+		// showMarker();
+		// disableLot();
+		// }
 	}
 
 	private void showMarker() {
@@ -330,7 +336,9 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		// TODO Auto-generated method stub
+		if(!wholeCampusMode){
+			return true;
+		}
 		return false;
 	}
 

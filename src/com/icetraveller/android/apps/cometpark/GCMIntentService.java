@@ -22,6 +22,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -56,8 +57,12 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "Received message. Extras: " + intent.getExtras());
-        String s = intent.getStringExtra("message");
-        Config.displayMessage(context, s);
+        String typeString = intent.getStringExtra(Config.TYPE);
+        String messageBody = intent.getStringExtra(Config.MESSAGE);
+        if(!TextUtils.isDigitsOnly(typeString))
+        	return;
+        int type = Integer.parseInt(typeString);
+        Config.displayMessage(context, messageBody, type);
         // notifies user
 //        generateNotification(context, s);
     }
@@ -65,7 +70,6 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onDeletedMessages(Context context, int total) {
         Log.i(TAG, "Received deleted messages notification");
-        Config.displayMessage(context, "asd");
         // notifies user
 //        generateNotification(context, "asd");
     }

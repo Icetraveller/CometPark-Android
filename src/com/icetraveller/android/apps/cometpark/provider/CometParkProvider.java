@@ -55,6 +55,7 @@ public class CometParkProvider extends ContentProvider {
 	private static final int LOCATIONS_ID_LONGITUDE = 303;
 	
 	private static final int LOT_STATUS = 400;
+	private static final int LOTS_LOT_STATUS = 401;
 
 	/**
 	 * Build and return a {@link UriMatcher} that catches all {@link Uri}
@@ -78,6 +79,7 @@ public class CometParkProvider extends ContentProvider {
 		matcher.addURI(authority, "spots/*/status", SPOTS_ID_STATUS);
 
 		matcher.addURI(authority, "lots", LOTS);
+		matcher.addURI(authority, "lots/lot_status", LOTS_LOT_STATUS);
 		matcher.addURI(authority, "lots/*", LOTS_ID);
 		matcher.addURI(authority, "lots/*/name", LOTS_ID_NAME);
 		matcher.addURI(authority, "lots/*/location_top_left",
@@ -318,6 +320,12 @@ public class CometParkProvider extends ContentProvider {
 		}
 		case LOT_STATUS:{
 			return builder.table(Tables.LOT_STATUS);
+		}
+		case LOTS_LOT_STATUS:{
+			return builder.table(Tables.LOT_JOIN_LOT_STATUS)
+					.mapToTable(Lots._ID, Tables.LOTS)
+					.mapToTable(Lots.ID, Tables.LOTS)
+					.mapToTable(LotStatus.ID, Tables.LOT_STATUS);
 		}
 //		case LOCATIONS: {
 //			return builder.table(Tables.LOCATIONS);

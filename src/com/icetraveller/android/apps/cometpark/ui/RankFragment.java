@@ -11,9 +11,12 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -28,6 +31,8 @@ public class RankFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private RankAdapter mAdapter;
 	private View mEmptyView;
+	
+	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,6 +59,26 @@ public class RankFragment extends ListFragment implements
 		mAdapter = new RankAdapter(getActivity(),false);
 		setListAdapter(mAdapter);
 		listView.setEmptyView(null);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			public void onClick(View view) {
+				
+//				Intent intent = new Intent(getActivity(), UIUtils
+//						.getMapActivityClass(getActivity()));
+//				// intent.putExtra(MapUtils.SHOW_LOT, viewId);
+//				intent.putExtra(MapUtils.SHOW_LOT, "0");
+//				startActivity(intent);
+			}
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				String viewId = (String) view.getTag();
+				Intent intent = new Intent(getActivity(), UIUtils
+						.getMapActivityClass(getActivity()));
+				intent.putExtra(MapUtils.SHOW_LOT, viewId);
+				startActivity(intent);
+			}
+		});
 		mEmptyView.setVisibility(View.VISIBLE);
 		mAdapter.registerDataSetObserver(new DataSetObserver() {
 			@Override
@@ -115,7 +140,7 @@ public class RankFragment extends ListFragment implements
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		Uri uri = CometParkContract.LotStatus.CONTENT_URI;
+		Uri uri = CometParkContract.Lots.buildLotsLotStatus();
 		return new CursorLoader(getActivity(), uri, RankAdapter.LotsStatusQuery.PROJECTION,
 				null, null, null);
 	}
