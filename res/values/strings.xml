@@ -12,6 +12,8 @@
     <string name="pref_permit_type_title">Permit Type</string>
     <string name="pref_permit_type_summary">Choose your Permit Type</string>
     
+    <string name="map_touch_to_see_lot">touch to see lot</string>
+    
     <string-array name="pref_permit_type_entry">
     	<item>Extended</item>
  		<item>Green</item>

@@ -3,10 +3,14 @@ package com.icetraveller.android.apps.cometpark.ui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
+import android.content.AsyncQueryHandler;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -54,6 +58,7 @@ import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.ui.RankAdapter.LotsStatusQuery;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -68,6 +73,9 @@ public class MapFragment extends SupportMapFragment implements
 	private static final float CAMERA_ZOOM = 15f;
 
 	public static final String SHOW_ALL = "show_all";
+
+	private MapInfoWindowAdapter mInfoAdapter;
+
 
 	// currently displayed lot
 	private String INITIAL_LOT = "0";
@@ -196,10 +204,15 @@ public class MapFragment extends SupportMapFragment implements
 	}
 
 	private void setupMap(boolean resetCamera) {
+		mInfoAdapter = new MapInfoWindowAdapter(getLayoutInflater(null),
+				getResources(), mMarkers);
+
 		mMap = getMap();
 		mMap.setOnMarkerClickListener(this);
+		mMap.setOnInfoWindowClickListener(this);
 		mMap.setOnCameraChangeListener(this);
 		mMap.setMyLocationEnabled(true);
+		mMap.setInfoWindowAdapter(mInfoAdapter);
 		if (resetCamera) {
 			mMap.moveCamera(CameraUpdateFactory
 					.newCameraPosition(CameraPosition.fromLatLngZoom(
@@ -324,7 +337,7 @@ public class MapFragment extends SupportMapFragment implements
 		}
 
 		if (wholeCampusMode) {
-			for(Marker m: mMarkersLot){
+			for (Marker m : mMarkersLot) {
 				m.setVisible(true);
 			}
 		} else {
@@ -354,15 +367,28 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		Log.d(TAG, "onMarkerClicked");
 		if (!wholeCampusMode) {
 			return true;
 		}
+		MarkerModel model = mMarkers.get(marker.getSnippet());
+		mInfoAdapter.setLotData(marker, marker.getTitle(), model.contentString);
+		marker.showInfoWindow();
 		return false;
 	}
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		// TODO Auto-generated method stub
+		Log.d(TAG, "onInfoWindowClicked");
+		if (!wholeCampusMode) {
+			return;
+		}
+		String lotId = marker.getSnippet();
+		Intent intent = new Intent(getActivity(), UIUtils
+				.getMapActivityClass(getActivity()));
+		intent.putExtra(MapUtils.SHOW_LOT, lotId);
+		startActivity(intent);
+		
 
 	}
 
@@ -543,23 +569,25 @@ public class MapFragment extends SupportMapFragment implements
 							LotsStatusQuery.LOCATION_BOTTOM_RIGHT).split(",");
 					LatLng ll = MapUtils.findCenter(topLeft, topRight,
 							bottomLeft, bottomRight);
-					
+
 					BitmapDescriptor icon = null;
 					String[] statusStrings = cursor.getString(
 							LotsStatusQuery.AVAILABLE_SPOTS_COUNT).split(",");
 					int availableCounts = countAvailableSpots(statusStrings);
-					int max = Integer.parseInt(statusStrings[Config.PERMIT_TYPE_SUM].trim());
+					int max = Integer
+							.parseInt(statusStrings[Config.PERMIT_TYPE_SUM]
+									.trim());
 					float level = 0;
-					if(max !=0){
-						level = (float)availableCounts / max;
+					if (max != 0) {
+						level = (float) availableCounts / max;
 					}
-					if(level > 0.5){
+					if (level > 0.5) {
 						icon = BitmapDescriptorFactory
 								.fromResource(R.drawable.marker_green);
-					}else if(level > 0.25){
+					} else if (level > 0.25) {
 						icon = BitmapDescriptorFactory
 								.fromResource(R.drawable.marker_orange);
-					}else{
+					} else {
 						icon = BitmapDescriptorFactory
 								.fromResource(R.drawable.marker_purple);
 					}
@@ -567,9 +595,9 @@ public class MapFragment extends SupportMapFragment implements
 						Marker m = mMap
 								.addMarker(new MarkerOptions().position(ll)
 										.title("Lot " + name)
-										.snippet("" + status).icon(icon)
+										.snippet(lotId).icon(icon)
 										.visible(false));
-						MarkerModel model = new MarkerModel(lotId, status, 99,
+						MarkerModel model = new MarkerModel(level*100+"% Chance to find a spot", status, 99,
 								m);
 						mMarkersLot.add(m);
 						mMarkers.put(lotId, model);
@@ -594,17 +622,17 @@ public class MapFragment extends SupportMapFragment implements
 			showMarker();
 		}
 	}
-	
-	private int countAvailableSpots(String[] ss){
-		if(ss.length <= userPermitType)
+
+	private int countAvailableSpots(String[] ss) {
+		if (ss.length <= userPermitType)
 			return 0;
 		int i = 0;
 		int sum = 0;
-		while( i <= userPermitType){
-			try{
-			sum =sum + Integer.parseInt(ss[i].trim());
-			}catch(NumberFormatException e){
-				//ignore
+		while (i <= userPermitType) {
+			try {
+				sum = sum + Integer.parseInt(ss[i].trim());
+			} catch (NumberFormatException e) {
+				// ignore
 			}
 			i++;
 		}
@@ -638,13 +666,13 @@ public class MapFragment extends SupportMapFragment implements
 	 * A structure to store information about a Marker.
 	 */
 	public static class MarkerModel {
-		String spoId;
+		String contentString;
 		int status;
 		int type;
 		Marker marker;
 
-		public MarkerModel(String spoId, int status, int type, Marker marker) {
-			this.spoId = spoId;
+		public MarkerModel(String contentString, int status, int type, Marker marker) {
+			this.contentString = contentString;
 			this.type = type;
 			this.status = status;
 			this.marker = marker;
@@ -672,5 +700,4 @@ public class MapFragment extends SupportMapFragment implements
 			Log.d(TAG, newMessage);
 		}
 	};
-
 }
