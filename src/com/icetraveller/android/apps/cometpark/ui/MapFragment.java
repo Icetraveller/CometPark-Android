@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -50,6 +51,7 @@ import com.icetraveller.android.apps.cometpark.io.model.Spot;
 import com.icetraveller.android.apps.cometpark.io.model.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
+import com.icetraveller.android.apps.cometpark.ui.RankAdapter.LotsStatusQuery;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
 
@@ -59,11 +61,11 @@ public class MapFragment extends SupportMapFragment implements
 		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
 		GoogleMap.OnCameraChangeListener, LoaderCallbacks<Cursor> {
 	// Initial camera position
-	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.986078,
-			-96.752977);
+	private static final LatLng CAMERA_UTDALLAS = new LatLng(32.987156,
+			-96.750735);
 	private static final LatLng TEST_SPOT = new LatLng(32.985990, -96.749650);
 	private static final LatLng TEST_SPOT2 = new LatLng(32.985960, -96.749650);
-	private static final float CAMERA_ZOOM = 18f;
+	private static final float CAMERA_ZOOM = 15f;
 
 	public static final String SHOW_ALL = "show_all";
 
@@ -176,12 +178,13 @@ public class MapFragment extends SupportMapFragment implements
 		if (mMap == null) {
 			setupMap(true);
 		}
+
+		LoaderManager lm = getActivity().getSupportLoaderManager();
 		if (!wholeCampusMode) {
-			LoaderManager lm = getActivity().getSupportLoaderManager();
 			lm.initLoader(LotsQuery._TOKEN, null, this);
 			lm.initLoader(SpotsQuery._TOKEN, null, this);
-		}else{
-			
+		} else {
+			lm.initLoader(LotsStatusQuery._TOKEN, null, this);
 		}
 
 		return v;
@@ -268,6 +271,11 @@ public class MapFragment extends SupportMapFragment implements
 			return new CursorLoader(getActivity(), uri, LotsQuery.PROJECTION,
 					null, null, null);
 		}
+		case LotsStatusQuery._TOKEN: {
+			Uri uri = CometParkContract.Lots.buildLotsLotStatus();
+			return new CursorLoader(getActivity(), uri,
+					LotsStatusQuery.PROJECTION, null, null, null);
+		}
 		}
 		return null;
 	}
@@ -283,6 +291,9 @@ public class MapFragment extends SupportMapFragment implements
 			break;
 		case LotsQuery._TOKEN:
 			onLotsLoadComplete(cursor);
+			break;
+		case LotsStatusQuery._TOKEN:
+			onLotsStatusLoadComplete(cursor);
 			break;
 		}
 	}
@@ -311,16 +322,23 @@ public class MapFragment extends SupportMapFragment implements
 		if (!mShow) {
 			return;
 		}
-		Log.d(TAG, "userPermitType= " + userPermitType);
-		boolean permitFlag = true;
-		for (Marker m : mMarkersLot) {
-			String spotId = m.getTitle();
-			MarkerModel model = mMarkers.get(spotId);
-			permitFlag = userPermitType >= model.type;
-			if ((model.status == Config.STATUS_AVAILABLE) && permitFlag) {
+
+		if (wholeCampusMode) {
+			for(Marker m: mMarkersLot){
 				m.setVisible(true);
-			} else {
-				m.setVisible(false);
+			}
+		} else {
+			Log.d(TAG, "userPermitType= " + userPermitType);
+			boolean permitFlag = true;
+			for (Marker m : mMarkersLot) {
+				String spotId = m.getTitle();
+				MarkerModel model = mMarkers.get(spotId);
+				permitFlag = userPermitType >= model.type;
+				if ((model.status == Config.STATUS_AVAILABLE) && permitFlag) {
+					m.setVisible(true);
+				} else {
+					m.setVisible(false);
+				}
 			}
 		}
 	}
@@ -336,7 +354,7 @@ public class MapFragment extends SupportMapFragment implements
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		if(!wholeCampusMode){
+		if (!wholeCampusMode) {
 			return true;
 		}
 		return false;
@@ -382,6 +400,28 @@ public class MapFragment extends SupportMapFragment implements
 		int LOT_LOCATION_TOP_RIGHT = 5;
 		int LOT_LOCATION_BOTTOM_LEFT = 6;
 		int LOT_LOCATION_BOTTOM_RIGHT = 7;
+	}
+
+	public interface LotsStatusQuery {
+		int _TOKEN = 0x3;
+
+		String[] PROJECTION = { BaseColumns._ID, CometParkContract.Lots.ID,
+				CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT,
+				CometParkContract.Lots.NAME,
+				CometParkContract.Lots.LOCATION_TOP_LEFT,
+				CometParkContract.Lots.LOCATION_BOTTOM_LEFT,
+				CometParkContract.Lots.LOCATION_TOP_RIGHT,
+				CometParkContract.Lots.LOCATION_BOTTOM_RIGHT,
+				CometParkContract.Lots.STATUS };
+		int _ID = 0;
+		int ID = 1;
+		int AVAILABLE_SPOTS_COUNT = 2;
+		int NAME = 3;
+		int LOCATION_TOP_LEFT = 4;
+		int LOCATION_BOTTOM_LEFT = 5;
+		int LOCATION_TOP_RIGHT = 6;
+		int LOCATION_BOTTOM_RIGHT = 7;
+		int STATUS = 8;
 	}
 
 	// loaders
@@ -467,6 +507,9 @@ public class MapFragment extends SupportMapFragment implements
 					if (f != null) {
 						double[] coordinates = MapUtils.stringsToProjections(
 								topLeft, topRight, bottomLeft, bottomRight);
+						LatLng ll = MapUtils.findCenter(topLeft, topRight,
+								bottomLeft, bottomRight);
+						moveCamera(ll);
 						Log.d(TAG, "file:" + file);
 						addTileProvider(lotId, f, coordinates);
 					}
@@ -476,7 +519,101 @@ public class MapFragment extends SupportMapFragment implements
 			mLotsLoaded = true;
 			enableLot();
 		}
+	}
 
+	private void onLotsStatusLoadComplete(Cursor cursor) {
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				// get data
+				String lotId = cursor.getString(LotsStatusQuery.ID);
+				String name = cursor.getString(LotsStatusQuery.NAME);
+				// String file = cursor.getString(LotsQuery.LOT_MAP_TILE_FILE);
+				int status = cursor.getInt(LotsStatusQuery.STATUS);
+				if (status == Config.STATUS_OCCUPIED) {
+					// the lot is reserved
+				} else {
+					String[] topLeft = cursor.getString(
+							LotsStatusQuery.LOCATION_TOP_LEFT).split(",");
+					String[] topRight = cursor.getString(
+							LotsStatusQuery.LOCATION_TOP_RIGHT).split(",");
+					String[] bottomLeft = cursor.getString(
+							LotsStatusQuery.LOCATION_BOTTOM_LEFT).split(",");
+					String[] bottomRight = cursor.getString(
+							LotsStatusQuery.LOCATION_BOTTOM_RIGHT).split(",");
+					LatLng ll = MapUtils.findCenter(topLeft, topRight,
+							bottomLeft, bottomRight);
+					
+					BitmapDescriptor icon = null;
+					String[] statusStrings = cursor.getString(
+							LotsStatusQuery.AVAILABLE_SPOTS_COUNT).split(",");
+					int availableCounts = countAvailableSpots(statusStrings);
+					int max = Integer.parseInt(statusStrings[Config.PERMIT_TYPE_SUM].trim());
+					float level = 0;
+					if(max !=0){
+						level = (float)availableCounts / max;
+					}
+					if(level > 0.5){
+						icon = BitmapDescriptorFactory
+								.fromResource(R.drawable.marker_green);
+					}else if(level > 0.25){
+						icon = BitmapDescriptorFactory
+								.fromResource(R.drawable.marker_orange);
+					}else{
+						icon = BitmapDescriptorFactory
+								.fromResource(R.drawable.marker_purple);
+					}
+					if (icon != null) {
+						Marker m = mMap
+								.addMarker(new MarkerOptions().position(ll)
+										.title("Lot " + name)
+										.snippet("" + status).icon(icon)
+										.visible(false));
+						MarkerModel model = new MarkerModel(lotId, status, 99,
+								m);
+						mMarkersLot.add(m);
+						mMarkers.put(lotId, model);
+					}
+					// File f = MapUtils.getTileFile(getActivity()
+					// .getApplicationContext(), file);
+					// if (f != null) {
+					// double[] coordinates = MapUtils.stringsToProjections(
+					// topLeft, topRight, bottomLeft, bottomRight);
+					// LatLng ll = MapUtils.findCenter(topLeft, topRight,
+					// bottomLeft, bottomRight);
+					// moveCamera(ll);
+					// Log.d(TAG, "file:" + file);
+					// addTileProvider(lotId, f, coordinates);
+					// }
+				}
+				cursor.moveToNext();
+			}
+			mLotsLoaded = true;
+			mMarkersLoaded = true;
+			// enableLot();
+			showMarker();
+		}
+	}
+	
+	private int countAvailableSpots(String[] ss){
+		if(ss.length <= userPermitType)
+			return 0;
+		int i = 0;
+		int sum = 0;
+		while( i <= userPermitType){
+			try{
+			sum =sum + Integer.parseInt(ss[i].trim());
+			}catch(NumberFormatException e){
+				//ignore
+			}
+			i++;
+		}
+		return sum;
+	}
+
+	private void moveCamera(LatLng ll) {
+		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
+				.fromLatLngZoom(ll, 18)));
 	}
 
 	void addTileProvider(String lot, File f, double[] coordinates) {
@@ -517,6 +654,9 @@ public class MapFragment extends SupportMapFragment implements
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			if (wholeCampusMode)
+				return;
+
 			String newMessage = intent.getExtras().getString(
 					Config.EXTRA_MESSAGE);
 			Spots spotsJson = new Gson().fromJson(newMessage, Spots.class);

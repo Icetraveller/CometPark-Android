@@ -31,8 +31,6 @@ public class RankFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private RankAdapter mAdapter;
 	private View mEmptyView;
-	
-	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,19 +54,10 @@ public class RankFragment extends ListFragment implements
 		listView.setCacheColorHint(Color.WHITE);
 		addMapHeaderView(); // yw, Add map
 
-		mAdapter = new RankAdapter(getActivity(),false);
+		mAdapter = new RankAdapter(getActivity(), false);
 		setListAdapter(mAdapter);
 		listView.setEmptyView(null);
 		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onClick(View view) {
-				
-//				Intent intent = new Intent(getActivity(), UIUtils
-//						.getMapActivityClass(getActivity()));
-//				// intent.putExtra(MapUtils.SHOW_LOT, viewId);
-//				intent.putExtra(MapUtils.SHOW_LOT, "0");
-//				startActivity(intent);
-			}
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -89,25 +78,6 @@ public class RankFragment extends ListFragment implements
 				}
 			}
 		});
-
-		// String[] values = new String[] { "Lot C", "Lot T", "Lot B", "Lot V",
-		// "Lot A", "Lot S", "Lot D", "Lot F" };
-		// adapter = new ArrayAdapter<String>(getActivity(),
-		// android.R.layout.simple_list_item_1, android.R.id.text1, values);
-		// setListAdapter(adapter);
-
-		// Override default ListView empty-view handling
-		// listView.setEmptyView(null);
-		// mEmptyView.setVisibility(View.GONE);
-		// adapter.registerDataSetObserver(new DataSetObserver() {
-		// @Override
-		// public void onChanged() {
-		// if (adapter.getCount() > 0) {
-		// mEmptyView.setVisibility(View.GONE);
-		// adapter.unregisterDataSetObserver(this);
-		// }
-		// }
-		// });
 	}
 
 	private void addMapHeaderView() {
@@ -119,11 +89,9 @@ public class RankFragment extends ListFragment implements
 		mapButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				int viewId = view.getId();
 				Intent intent = new Intent(getActivity(), UIUtils
 						.getMapActivityClass(context));
-				// intent.putExtra(MapUtils.SHOW_LOT, viewId);
-				intent.putExtra(MapUtils.SHOW_LOT, "0");
+				intent.putExtra(MapUtils.SHOW_LOT, MapFragment.SHOW_ALL);
 				startActivity(intent);
 			}
 		});
@@ -135,14 +103,15 @@ public class RankFragment extends ListFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(RankAdapter.LotsStatusQuery._TOKEN, null, this);
+		getLoaderManager().initLoader(RankAdapter.LotsStatusQuery._TOKEN, null,
+				this);
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 		Uri uri = CometParkContract.Lots.buildLotsLotStatus();
-		return new CursorLoader(getActivity(), uri, RankAdapter.LotsStatusQuery.PROJECTION,
-				null, null, null);
+		return new CursorLoader(getActivity(), uri,
+				RankAdapter.LotsStatusQuery.PROJECTION, null, null, null);
 	}
 
 	@Override
@@ -150,7 +119,6 @@ public class RankFragment extends ListFragment implements
 		if (getActivity() == null) {
 			return;
 		}
-//		mAdapter.setHasAllItem(true);
 		mAdapter.swapCursor(cursor);
 		if (cursor.getCount() > 0) {
 			mEmptyView.setVisibility(View.GONE);

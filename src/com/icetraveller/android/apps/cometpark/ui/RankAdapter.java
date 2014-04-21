@@ -59,6 +59,9 @@ public class RankAdapter extends CursorAdapter {
 		Log.d(TAG, "view Tag="+id);
 		String[] statusStrings = cursor.getString(
 				LotsStatusQuery.AVAILABLE_SPOTS_COUNT).split(",");
+		if(statusStrings.length <= userPermitType)
+			return ;
+		
 		String name = cursor.getString(LotsStatusQuery.NAME);
 		int status = countAvailableSpots(statusStrings);
 		int max = Integer.parseInt(statusStrings[Config.PERMIT_TYPE_SUM].trim());
@@ -95,6 +98,8 @@ public class RankAdapter extends CursorAdapter {
 	}
 	
 	private int countAvailableSpots(String[] ss){
+		if(ss.length <= userPermitType)
+			return 0;
 		int i = 0;
 		int sum = 0;
 		while( i <= userPermitType){
@@ -106,7 +111,6 @@ public class RankAdapter extends CursorAdapter {
 			i++;
 		}
 		return sum;
-		
 	}
 
 	public interface LotsStatusQuery {

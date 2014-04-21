@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class MapUtils {
 
 	private static final String TILE_PATH = "lotstiles";
@@ -230,6 +232,39 @@ public class MapUtils {
 			i+=2;
 		}
 		return result;
+	}
+	
+	public static LatLng findCenter(String[]... args){
+	    int total = args.length;
+
+	    double X = 0;
+	    double Y = 0;
+	    double Z = 0;
+
+	    for(String[] s : args)
+	    {
+	    	double i1 = Double.parseDouble(s[0]);
+	    	double i2 = Double.parseDouble(s[1]);
+	        double lat = i1 * Math.PI / 180;
+	        double lon = i2 * Math.PI / 180;
+
+	        double x = Math.cos(lat) * Math.cos(lon);
+	        double y = Math.cos(lat) * Math.sin(lon);
+	        double z = Math.sin(lat);
+
+	        X += x;
+	        Y += y;
+	        Z += z;
+	    }
+
+	    X = X / total;
+	    Y = Y / total;
+	    Z = Z / total;
+
+	    double Lon = Math.atan2(Y, X);
+	    double Hyp = Math.sqrt(X * X + Y * Y);
+	    double Lat = Math.atan2(Z, Hyp);
+	    return new LatLng(Lat * 180 / Math.PI , Lon * 180 / Math.PI);
 	}
 	
 }

@@ -70,14 +70,19 @@ public class HomeActivity extends BaseActivity implements
 		if (isFinishing()) {
 			return;
 		}
+		
+		
 
 		setContentView(R.layout.activity_home);
+		//TODO
+		process = new SyncProcessor(this);
+		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
+		
 		FragmentManager fm = getSupportFragmentManager();
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 
 		mViewPager.requestTransparentRegion(mViewPager);
-		;
 
 		String homeScreenLabel;
 		if (mViewPager != null) {
@@ -125,9 +130,6 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		process = new SyncProcessor(this);
-		process.execute(SyncHelper.FLAG_SYNC_LOCAL
-				| SyncHelper.FLAG_SYNC_REMOTE);
 	}
 
 	@Override
@@ -193,7 +195,7 @@ public class HomeActivity extends BaseActivity implements
 			case 1:
 				MapFragment mapFragment = new MapFragment();
 				Bundle b = new Bundle();
-				b.putString(MapUtils.SHOW_LOT, "0");
+				b.putString(MapUtils.SHOW_LOT, MapFragment.SHOW_ALL);
 				mapFragment.setArguments(b);
 				return mapFragment;
 			}
