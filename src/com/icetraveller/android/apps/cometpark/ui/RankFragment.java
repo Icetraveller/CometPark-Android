@@ -1,5 +1,6 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,6 +21,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.icetraveller.android.apps.cometpark.BoardCastCenter;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
@@ -31,6 +34,17 @@ public class RankFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private RankAdapter mAdapter;
 	private View mEmptyView;
+	CallBacks cb;
+	
+	interface CallBacks{
+		void onListItemClick();
+	}
+	
+	@Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        cb = (CallBacks) activity;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,11 +75,14 @@ public class RankFragment extends ListFragment implements
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				
 				String viewId = (String) view.getTag();
-				Intent intent = new Intent(getActivity(), UIUtils
-						.getMapActivityClass(getActivity()));
-				intent.putExtra(MapUtils.SHOW_LOT, viewId);
-				startActivity(intent);
+//				Intent intent = new Intent(getActivity(), UIUtils
+//						.getMapActivityClass(getActivity()));
+//				intent.putExtra(MapUtils.SHOW_LOT, viewId);
+//				startActivity(intent);
+				cb.onListItemClick();
+				BoardCastCenter.displayMessage(getActivity(), viewId, Config.BROADCAST_VIEW_LOT);
 			}
 		});
 		mEmptyView.setVisibility(View.VISIBLE);

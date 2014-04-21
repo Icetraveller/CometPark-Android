@@ -77,7 +77,7 @@ public class RankAdapter extends CursorAdapter {
 		primaryTextView.setText("Lot "+name);
 		
 		secondryTextView = (TextView) view.findViewById(R.id.secondLine);
-		secondryTextView.setText(level*100 +"% spots are available for you");
+		secondryTextView.setText(level*100 +"% Chance to get a spot");
 		int c = Color.WHITE;
 		levelTextView = (TextView) view.findViewById(R.id.level);
 		if(level > 0.5){

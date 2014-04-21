@@ -55,7 +55,7 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
  * 
  */
 public class HomeActivity extends BaseActivity implements
-		ActionBar.TabListener, ViewPager.OnPageChangeListener {
+		ActionBar.TabListener, ViewPager.OnPageChangeListener, RankFragment.CallBacks {
 	private static final String TAG = makeLogTag(HomeActivity.class);
 	private ViewPager mViewPager;
 	public static final String TAB_LOTS = "parking_lots";
@@ -70,10 +70,10 @@ public class HomeActivity extends BaseActivity implements
 		if (isFinishing()) {
 			return;
 		}
-		
-		
 
 		setContentView(R.layout.activity_home);
+		getSupportActionBar().setTitle(R.string.app_name);
+		
 		//TODO
 		process = new SyncProcessor(this);
 		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
@@ -271,6 +271,11 @@ public class HomeActivity extends BaseActivity implements
 				mRegisterTask.execute(null, null, null);
 			}
 		}
+	}
+
+	@Override
+	public void onListItemClick() {
+		mViewPager.setCurrentItem(1, true);
 	}
 
 }

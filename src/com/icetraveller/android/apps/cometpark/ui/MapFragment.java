@@ -130,7 +130,7 @@ public class MapFragment extends SupportMapFragment implements
 		}
 		LOGD(TAG, "Map onCreate");
 
-		clearMap();
+		clearMap(); 
 
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
@@ -138,6 +138,8 @@ public class MapFragment extends SupportMapFragment implements
 
 		getActivity().registerReceiver(mHandleMessageReceiver,
 				new IntentFilter(Config.UPDATE_SPOTS_ACTION));
+		getActivity().registerReceiver(mHandleLotViewrReceiver,
+				new IntentFilter(Config.VIEW_LOT_ACTION));
 
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
@@ -200,6 +202,7 @@ public class MapFragment extends SupportMapFragment implements
 
 	public void onDestroy() {
 		getActivity().unregisterReceiver(mHandleMessageReceiver);
+		getActivity().unregisterReceiver(mHandleLotViewrReceiver);
 		super.onDestroy();
 	}
 
@@ -373,7 +376,6 @@ public class MapFragment extends SupportMapFragment implements
 		}
 		MarkerModel model = mMarkers.get(marker.getSnippet());
 		mInfoAdapter.setLotData(marker, marker.getTitle(), model.contentString);
-		marker.showInfoWindow();
 		return false;
 	}
 
@@ -682,8 +684,10 @@ public class MapFragment extends SupportMapFragment implements
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (wholeCampusMode)
+			if (wholeCampusMode){
 				return;
+			}
+				
 
 			String newMessage = intent.getExtras().getString(
 					Config.EXTRA_MESSAGE);
@@ -700,4 +704,29 @@ public class MapFragment extends SupportMapFragment implements
 			Log.d(TAG, newMessage);
 		}
 	};
+	
+	private final BroadcastReceiver mHandleLotViewrReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (!wholeCampusMode){
+				return;
+			}
+			
+			
+			
+			String lotId = intent.getExtras().getString(
+					Config.EXTRA_MESSAGE);
+			
+			MarkerModel model = mMarkers.get(lotId);
+			Marker marker = model.marker;
+			
+			LatLng ll = model.marker.getPosition();
+			moveCamera(ll);
+			
+			mInfoAdapter.setLotData(marker, marker.getTitle(), model.contentString);
+			model.marker.showInfoWindow();
+		}
+	};
+	
+	
 }

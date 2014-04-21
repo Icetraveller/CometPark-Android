@@ -106,6 +106,8 @@ public class Config {
 	 */
 	public static final int BROADCAST_LOTS_INFO_UPDATE = 903;
 	
+	public static final int BROADCAST_VIEW_LOT = 1000;
+	
 	public static final String TYPE = "type";
 	
 	public static final String JSON_TYPE = "type";
@@ -145,24 +147,14 @@ public class Config {
     
     public static final String UPDATE_SPOTS_ACTION = 
     		"com.icetraveller.android.apps.cometpark.gcm.UPDATE_SPOTS";
+    
+    public static final String VIEW_LOT_ACTION = 
+    		"com.icetraveller.android.apps.cometpark.gcm.VIEW_LOT";
 
     /**
      * Intent's extra that contains the message to be displayed.
      */
     public static final String EXTRA_MESSAGE = "message";
 	
-	public static void displayMessage(Context context, String message, int type) {
-    	Log.d("Config", "received");
-    	Intent intent = null;
-    	switch(type){
-    	case BROADCAST_SPOTS_STATUS_UPDATE:
-    		intent = new Intent(UPDATE_SPOTS_ACTION);
-            intent.putExtra(EXTRA_MESSAGE, message);
-    		break;
-    	}
-        if(intent != null){
-        	context.sendBroadcast(intent);
-        }
-    }
 
 }
