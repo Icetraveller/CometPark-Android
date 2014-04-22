@@ -2,6 +2,7 @@ package com.icetraveller.android.apps.cometpark.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
@@ -13,6 +14,7 @@ import android.content.Context;
 
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.utils.Lists;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -70,7 +72,7 @@ public class LotsHandler extends JSONHandler {
 		ContentProviderOperation.Builder builder = ContentProviderOperation
 				.newInsert(CometParkContract.LotStatus.CONTENT_URI);
 		builder.withValue(CometParkContract.LotStatus.ID, lot.id);
-		builder.withValue(CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT, "");
+		builder.withValue(CometParkContract.LotStatus.AVAILABLE_SPOTS_COUNT, UIUtils.emptyAvailbleCountString());
 		batch.add(builder.build());
 	}
 	
