@@ -5,6 +5,7 @@ import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.utils.CharacterDrawable;
 import com.icetraveller.android.apps.cometpark.utils.LogUtils;
+import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -38,7 +39,7 @@ public class RankAdapter extends CursorAdapter {
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(mActivity);
 		String permitTypeString = prefs.getString(
-				SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
+				PreferenceHelper.PREF_KEY_PERMIT_TYPE, "2");
 		userPermitType = Integer.parseInt(permitTypeString);
 		permitTypeStringArray = mActivity.getResources().getStringArray(R.array.pref_permit_type_entry);
 	}

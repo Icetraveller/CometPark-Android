@@ -26,6 +26,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -38,9 +40,11 @@ import com.icetraveller.android.apps.cometpark.io.LotStatusFetcher;
 import com.icetraveller.android.apps.cometpark.io.LotsHandler;
 import com.icetraveller.android.apps.cometpark.io.SpotsHandler;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.sync.DataLoaderTask;
 import com.icetraveller.android.apps.cometpark.sync.SyncHelper;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
+import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -55,7 +59,7 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
  * 
  */
 public class HomeActivity extends BaseActivity implements
-		ActionBar.TabListener, ViewPager.OnPageChangeListener, RankFragment.CallBacks {
+		ActionBar.TabListener, ViewPager.OnPageChangeListener, RankFragment.CallBacks, DataLoaderTask.CallBacks {
 	private static final String TAG = makeLogTag(HomeActivity.class);
 	private ViewPager mViewPager;
 	public static final String TAB_LOTS = "parking_lots";
@@ -66,18 +70,24 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		if (isFinishing()) {
 			return;
 		}
-
 		setContentView(R.layout.activity_home);
-		getSupportActionBar().setTitle(R.string.app_name);
 		
-		//TODO
-		process = new SyncProcessor(this);
-		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
-		
+		boolean showLoadingPage = PreferenceHelper.getDataLoaded(this);
+		if(showLoadingPage){
+			DataLoaderTask dataLoader = new DataLoaderTask(this,savedInstanceState);
+			dataLoader.execute();
+			View loadingView = (LinearLayout) findViewById(R.id.loading);
+			loadingView.setVisibility(View.VISIBLE);
+		}else{
+			loadPager(savedInstanceState);
+		}
+	} 
+	
+	private void loadPager(Bundle savedInstanceState){
+
 		FragmentManager fm = getSupportFragmentManager();
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -130,6 +140,8 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		process = new SyncProcessor(this);
+		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
 	}
 
 	@Override
@@ -278,4 +290,11 @@ public class HomeActivity extends BaseActivity implements
 		mViewPager.setCurrentItem(1, true);
 	}
 
+	@Override
+	public void onDataLoadComplete(Bundle savedInstanceState) {
+		loadPager(savedInstanceState);
+		View loadingView = (LinearLayout) findViewById(R.id.loading);
+		loadingView.setVisibility(View.INVISIBLE);
+	}
 }
+
