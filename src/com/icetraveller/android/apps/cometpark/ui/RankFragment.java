@@ -21,11 +21,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.espian.showcaseview.ShowcaseView;
+import com.espian.showcaseview.targets.ActionViewTarget;
+import com.espian.showcaseview.targets.ViewTarget;
 import com.icetraveller.android.apps.cometpark.BoardCastCenter;
 import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
+import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
@@ -35,15 +39,15 @@ public class RankFragment extends ListFragment implements
 	private RankAdapter mAdapter;
 	private View mEmptyView;
 	CallBacks cb;
-	
-	interface CallBacks{
+
+	interface CallBacks {
 		void onListItemClick();
 	}
-	
+
 	@Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        cb = (CallBacks) activity;
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		cb = (CallBacks) activity;
 	}
 
 	@Override
@@ -75,14 +79,15 @@ public class RankFragment extends ListFragment implements
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				
+
 				String viewId = (String) view.getTag();
-//				Intent intent = new Intent(getActivity(), UIUtils
-//						.getMapActivityClass(getActivity()));
-//				intent.putExtra(MapUtils.SHOW_LOT, viewId);
-//				startActivity(intent);
+				// Intent intent = new Intent(getActivity(), UIUtils
+				// .getMapActivityClass(getActivity()));
+				// intent.putExtra(MapUtils.SHOW_LOT, viewId);
+				// startActivity(intent);
 				cb.onListItemClick();
-				BoardCastCenter.displayMessage(getActivity(), viewId, Config.BROADCAST_VIEW_LOT);
+				BoardCastCenter.displayMessage(getActivity(), viewId,
+						Config.BROADCAST_VIEW_LOT);
 			}
 		});
 		mEmptyView.setVisibility(View.VISIBLE);
@@ -122,8 +127,9 @@ public class RankFragment extends ListFragment implements
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(RankAdapter.LotsStatusQuery._TOKEN, null,
 				this);
+		UIUtils.showTutorial(getActivity(),getActivity().findViewById(R.id.map_button));
 	}
-
+	
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 		Uri uri = CometParkContract.Lots.buildLotsLotStatus();
@@ -136,10 +142,12 @@ public class RankFragment extends ListFragment implements
 		if (getActivity() == null) {
 			return;
 		}
+		
 		mAdapter.swapCursor(cursor);
 		if (cursor.getCount() > 0) {
 			mEmptyView.setVisibility(View.GONE);
 		}
+		
 	}
 
 	@Override

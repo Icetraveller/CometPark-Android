@@ -2,9 +2,9 @@
     xmlns:cometpark="http://schemas.android.com/apk/res-auto"
       >
 
-    <item android:id="@+id/menu_refresh"
-        android:icon="@drawable/ic_action_refresh"
-        android:title="@string/description_refresh"
+    <item android:id="@+id/menu_navigate"
+        android:icon="@drawable/arrow"
+        android:title="Navigate"
         android:orderInCategory="1"
         cometpark:showAsAction="always" />
 

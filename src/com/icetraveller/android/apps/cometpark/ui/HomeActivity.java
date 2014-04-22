@@ -30,7 +30,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.espian.showcaseview.ShowcaseView;
+import com.espian.showcaseview.ShowcaseViews;
+import com.espian.showcaseview.targets.ActionItemTarget;
+import com.espian.showcaseview.targets.ActionViewTarget;
+import com.espian.showcaseview.targets.ViewTarget;
 import com.google.android.gcm.GCMRegistrar;
 import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
@@ -59,7 +65,8 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
  * 
  */
 public class HomeActivity extends BaseActivity implements
-		ActionBar.TabListener, ViewPager.OnPageChangeListener, RankFragment.CallBacks, DataLoaderTask.CallBacks {
+		ActionBar.TabListener, ViewPager.OnPageChangeListener,
+		RankFragment.CallBacks, DataLoaderTask.CallBacks {
 	private static final String TAG = makeLogTag(HomeActivity.class);
 	private ViewPager mViewPager;
 	public static final String TAB_LOTS = "parking_lots";
@@ -74,19 +81,21 @@ public class HomeActivity extends BaseActivity implements
 			return;
 		}
 		setContentView(R.layout.activity_home);
-		
+
 		boolean showLoadingPage = PreferenceHelper.getDataLoaded(this);
-		if(showLoadingPage){
-			DataLoaderTask dataLoader = new DataLoaderTask(this,savedInstanceState);
+		if (showLoadingPage) {
+			DataLoaderTask dataLoader = new DataLoaderTask(this,
+					savedInstanceState);
 			dataLoader.execute();
 			View loadingView = (LinearLayout) findViewById(R.id.loading);
 			loadingView.setVisibility(View.VISIBLE);
-		}else{
+		} else {
 			loadPager(savedInstanceState);
 		}
-	} 
-	
-	private void loadPager(Bundle savedInstanceState){
+
+	}
+
+	private void loadPager(Bundle savedInstanceState) {
 
 		FragmentManager fm = getSupportFragmentManager();
 
@@ -141,7 +150,10 @@ public class HomeActivity extends BaseActivity implements
 	protected void onResume() {
 		super.onResume();
 		process = new SyncProcessor(this);
-		process.execute(SyncHelper.FLAG_SYNC_LOCAL|SyncHelper.FLAG_SYNC_REMOTE);
+		process.execute(SyncHelper.FLAG_SYNC_LOCAL
+				| SyncHelper.FLAG_SYNC_REMOTE);
+
+		
 	}
 
 	@Override
@@ -232,6 +244,8 @@ public class HomeActivity extends BaseActivity implements
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
 			// TODO triggerRefresh();
+			ActionItemTarget target = new ActionItemTarget(this,
+					R.id.menu_refresh);
 			return true;
 
 		case R.id.menu_about:
@@ -292,9 +306,9 @@ public class HomeActivity extends BaseActivity implements
 
 	@Override
 	public void onDataLoadComplete(Bundle savedInstanceState) {
+		PreferenceHelper.setDataLoaded(this, false);
 		loadPager(savedInstanceState);
 		View loadingView = (LinearLayout) findViewById(R.id.loading);
 		loadingView.setVisibility(View.INVISIBLE);
 	}
 }
-

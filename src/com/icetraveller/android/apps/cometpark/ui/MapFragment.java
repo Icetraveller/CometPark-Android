@@ -16,6 +16,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import com.espian.showcaseview.targets.ActionItemTarget;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -77,7 +81,6 @@ public class MapFragment extends SupportMapFragment implements
 
 	private MapInfoWindowAdapter mInfoAdapter;
 
-
 	// currently displayed lot
 	private String INITIAL_LOT = "0";
 	private String mLot = "";
@@ -110,14 +113,14 @@ public class MapFragment extends SupportMapFragment implements
 
 	private int userPermitType = -1;
 
+	private LatLng dadd = null;
+	private LatLng sadd = null;
 	// Screen DPI
 	private float mDPI = 0;
 
 	private GoogleMap mMap;
-
-	interface Callbacks {
-
-	}
+	
+	private LocationManager locationManager = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -131,11 +134,10 @@ public class MapFragment extends SupportMapFragment implements
 		}
 		LOGD(TAG, "Map onCreate");
 
-		clearMap(); 
-
+		clearMap();
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
-		// setHasOptionsMenu(true);
+		setHasOptionsMenu(true);
 
 		getActivity().registerReceiver(mHandleMessageReceiver,
 				new IntentFilter(Config.UPDATE_SPOTS_ACTION));
@@ -147,6 +149,7 @@ public class MapFragment extends SupportMapFragment implements
 		String permitTypeString = prefs.getString(
 				PreferenceHelper.PREF_KEY_PERMIT_TYPE, "2");
 		userPermitType = Integer.parseInt(permitTypeString);
+
 	}
 
 	@Override
@@ -194,6 +197,13 @@ public class MapFragment extends SupportMapFragment implements
 		if (!wholeCampusMode) {
 			lm.initLoader(LotsQuery._TOKEN, null, this);
 			lm.initLoader(SpotsQuery._TOKEN, null, this);
+			locationManager = (LocationManager) getActivity()
+					.getSystemService(Context.LOCATION_SERVICE);
+			// Register the listener with the Location Manager to receive
+						// location
+						// updates
+						locationManager.requestLocationUpdates(
+								LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		} else {
 			lm.initLoader(LotsStatusQuery._TOKEN, null, this);
 		}
@@ -205,6 +215,39 @@ public class MapFragment extends SupportMapFragment implements
 		getActivity().unregisterReceiver(mHandleMessageReceiver);
 		getActivity().unregisterReceiver(mHandleLotViewrReceiver);
 		super.onDestroy();
+	}
+
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		if (!wholeCampusMode) {
+			getActivity().getMenuInflater().inflate(R.menu.map, menu);
+		}
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_navigate:
+			if (dadd != null) {
+				if(sadd == null){
+					String locationProvider = LocationManager.NETWORK_PROVIDER;
+					Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+					addCurrentAddr(new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude()));
+				}
+				String uri = "http://maps.google.com/maps?saddr="
+						+ sadd.latitude + "," + sadd.longitude + "&daddr="
+						+ dadd.latitude + "," + dadd.longitude;
+				Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+						Uri.parse(uri));
+				intent.setClassName("com.google.android.apps.maps",
+						"com.google.android.maps.MapsActivity");
+				startActivity(intent);
+				// Remove the listener you previously added
+				locationManager.removeUpdates(locationListener);
+			}
+			return true;
+
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void setupMap(boolean resetCamera) {
@@ -387,11 +430,10 @@ public class MapFragment extends SupportMapFragment implements
 			return;
 		}
 		String lotId = marker.getSnippet();
-		Intent intent = new Intent(getActivity(), UIUtils
-				.getMapActivityClass(getActivity()));
+		Intent intent = new Intent(getActivity(),
+				UIUtils.getMapActivityClass(getActivity()));
 		intent.putExtra(MapUtils.SHOW_LOT, lotId);
 		startActivity(intent);
-		
 
 	}
 
@@ -460,7 +502,6 @@ public class MapFragment extends SupportMapFragment implements
 			while (!cursor.isAfterLast()) {
 				// get data
 				String spotId = cursor.getString(SpotsQuery.SPOT_ID);
-				String lotId = cursor.getString(SpotsQuery.SPOT_LOT);
 				int status = cursor.getInt(SpotsQuery.SPOT_STATUS);
 				Log.d(TAG, "spot:" + spotId + " status: " + status);
 				int permitType = cursor.getInt(SpotsQuery.SPOT_TYPE);
@@ -516,7 +557,6 @@ public class MapFragment extends SupportMapFragment implements
 			while (!cursor.isAfterLast()) {
 				// get data
 				String lotId = cursor.getString(LotsQuery.LOT_ID);
-				String name = cursor.getString(LotsQuery.LOT_NAME);
 				String file = cursor.getString(LotsQuery.LOT_MAP_TILE_FILE);
 				int status = cursor.getInt(LotsQuery.LOT_STATUS);
 				if (status == Config.STATUS_OCCUPIED) {
@@ -539,6 +579,7 @@ public class MapFragment extends SupportMapFragment implements
 						LatLng ll = MapUtils.findCenter(topLeft, topRight,
 								bottomLeft, bottomRight);
 						moveCamera(ll);
+						dadd = ll;
 						Log.d(TAG, "file:" + file);
 						addTileProvider(lotId, f, coordinates);
 					}
@@ -548,6 +589,11 @@ public class MapFragment extends SupportMapFragment implements
 			mLotsLoaded = true;
 			enableLot();
 		}
+
+	}
+
+	private void addCurrentAddr(LatLng ll) {
+		sadd = ll;
 	}
 
 	private void onLotsStatusLoadComplete(Cursor cursor) {
@@ -595,13 +641,11 @@ public class MapFragment extends SupportMapFragment implements
 								.fromResource(R.drawable.marker_hard);
 					}
 					if (icon != null) {
-						Marker m = mMap
-								.addMarker(new MarkerOptions().position(ll)
-										.title("Lot " + name)
-										.snippet(lotId).icon(icon)
-										.visible(false));
-						MarkerModel model = new MarkerModel(level*100+"% Chance to find a spot", status, 99,
-								m);
+						Marker m = mMap.addMarker(new MarkerOptions()
+								.position(ll).title("Lot " + name)
+								.snippet(lotId).icon(icon).visible(false));
+						MarkerModel model = new MarkerModel(level * 100
+								+ "% Chance to find a spot", status, 99, m);
 						mMarkersLot.add(m);
 						mMarkers.put(lotId, model);
 					}
@@ -632,8 +676,12 @@ public class MapFragment extends SupportMapFragment implements
 	}
 
 	private void moveCamera(LatLng ll) {
-		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
-				.fromLatLngZoom(ll, 18)));
+		CameraPosition cameraPosition = new CameraPosition.Builder()
+	    .target(ll)      // Sets the center of the map to Mountain View
+	    .zoom(18)                   // Sets the zoom
+	    .tilt(45)                   // Sets the tilt of the camera to 30 degrees
+	    .build();                   // Creates a CameraPosition from the builder
+		mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 
 	void addTileProvider(String lot, File f, double[] coordinates) {
@@ -663,7 +711,8 @@ public class MapFragment extends SupportMapFragment implements
 		int type;
 		Marker marker;
 
-		public MarkerModel(String contentString, int status, int type, Marker marker) {
+		public MarkerModel(String contentString, int status, int type,
+				Marker marker) {
 			this.contentString = contentString;
 			this.type = type;
 			this.status = status;
@@ -674,10 +723,9 @@ public class MapFragment extends SupportMapFragment implements
 	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (wholeCampusMode){
+			if (wholeCampusMode) {
 				return;
 			}
-				
 
 			String newMessage = intent.getExtras().getString(
 					Config.EXTRA_MESSAGE);
@@ -694,29 +742,45 @@ public class MapFragment extends SupportMapFragment implements
 			Log.d(TAG, newMessage);
 		}
 	};
-	
+
 	private final BroadcastReceiver mHandleLotViewrReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (!wholeCampusMode){
+			if (!wholeCampusMode) {
 				return;
 			}
-			
-			
-			
-			String lotId = intent.getExtras().getString(
-					Config.EXTRA_MESSAGE);
-			
+
+			String lotId = intent.getExtras().getString(Config.EXTRA_MESSAGE);
+
 			MarkerModel model = mMarkers.get(lotId);
 			Marker marker = model.marker;
-			
+
 			LatLng ll = model.marker.getPosition();
 			moveCamera(ll);
-			
-			mInfoAdapter.setLotData(marker, marker.getTitle(), model.contentString);
+
+			mInfoAdapter.setLotData(marker, marker.getTitle(),
+					model.contentString);
 			model.marker.showInfoWindow();
 		}
 	};
-	
-	
+
+	// Define a listener that responds to location updates
+	private LocationListener locationListener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			// Called when a new location is found by the network location
+			// provider.
+			addCurrentAddr(new LatLng(location.getLatitude(),
+					location.getLongitude()));
+		}
+
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+
+		public void onProviderEnabled(String provider) {
+		}
+
+		public void onProviderDisabled(String provider) {
+		}
+	};
+
 }

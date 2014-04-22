@@ -22,7 +22,7 @@ public class PreferenceHelper {
 	public static boolean getFirstTimeUser(Context context){
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		return prefs.getBoolean(PREF_KEY_FIRST_TIME_USER, false);
+		return prefs.getBoolean(PREF_KEY_FIRST_TIME_USER, true);
 	}
 	
 	public static void setDataLoaded(Context context, boolean isDataLoaded){

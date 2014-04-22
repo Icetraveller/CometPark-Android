@@ -2,6 +2,7 @@ package com.icetraveller.android.apps.cometpark.ui;
 
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -29,7 +30,6 @@ public class SettingsActivity extends PreferenceActivity {
 			// set first value by default
 			listPreference.setValueIndex(DEFAULT_VALUE);
 		}
-		
 		int index = parse(listPreference.getValue().toString());
 
 		listPreference.setSummary(stringArray[index]);
@@ -42,6 +42,7 @@ public class SettingsActivity extends PreferenceActivity {
 						return true;
 					}
 				});
+		
 	}
 	
 	private int parse(String i){

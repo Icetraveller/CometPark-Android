@@ -11,5 +11,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/android-support-v7-appcompat"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/google-play-services_lib"/>
 	<classpathentry kind="lib" path="libs/basic-http-client-android-0.88.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/library"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
