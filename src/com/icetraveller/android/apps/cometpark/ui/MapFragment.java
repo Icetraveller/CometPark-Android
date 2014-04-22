@@ -57,6 +57,7 @@ import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.ui.RankAdapter.LotsStatusQuery;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
+import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 import com.icetraveller.android.apps.cometpark.utils.SVGTileProvider;
 import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
@@ -144,7 +145,7 @@ public class MapFragment extends SupportMapFragment implements
 		final SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
 		String permitTypeString = prefs.getString(
-				SettingsActivity.PREF_KEY_PERMIT_TYPE, "2");
+				PreferenceHelper.PREF_KEY_PERMIT_TYPE, "2");
 		userPermitType = Integer.parseInt(permitTypeString);
 	}
 
@@ -585,13 +586,13 @@ public class MapFragment extends SupportMapFragment implements
 					}
 					if (level > 0.5) {
 						icon = BitmapDescriptorFactory
-								.fromResource(R.drawable.marker_green);
+								.fromResource(R.drawable.marker_easy);
 					} else if (level > 0.25) {
 						icon = BitmapDescriptorFactory
-								.fromResource(R.drawable.marker_orange);
+								.fromResource(R.drawable.marker_avg);
 					} else {
 						icon = BitmapDescriptorFactory
-								.fromResource(R.drawable.marker_purple);
+								.fromResource(R.drawable.marker_hard);
 					}
 					if (icon != null) {
 						Marker m = mMap
@@ -604,17 +605,6 @@ public class MapFragment extends SupportMapFragment implements
 						mMarkersLot.add(m);
 						mMarkers.put(lotId, model);
 					}
-					// File f = MapUtils.getTileFile(getActivity()
-					// .getApplicationContext(), file);
-					// if (f != null) {
-					// double[] coordinates = MapUtils.stringsToProjections(
-					// topLeft, topRight, bottomLeft, bottomRight);
-					// LatLng ll = MapUtils.findCenter(topLeft, topRight,
-					// bottomLeft, bottomRight);
-					// moveCamera(ll);
-					// Log.d(TAG, "file:" + file);
-					// addTileProvider(lotId, f, coordinates);
-					// }
 				}
 				cursor.moveToNext();
 			}
