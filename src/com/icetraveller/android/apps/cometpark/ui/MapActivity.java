@@ -5,6 +5,8 @@ import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
+import android.view.MenuItem;
 
 
 public class MapActivity extends SimpleSinglePaneActivity {
@@ -18,5 +20,16 @@ public class MapActivity extends SimpleSinglePaneActivity {
 		b.putString(MapUtils.SHOW_LOT, lotId);
 		mapFragment.setArguments(b);
 		return mapFragment;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    // Respond to the action bar's Up/Home button
+	    case android.R.id.home:
+	        finish();
+	        return true;
+	    }
+	    return super.onOptionsItemSelected(item);
 	}
 }

@@ -54,7 +54,6 @@ public class RankAdapter extends CursorAdapter {
 	public void bindView(View view, Context context, Cursor cursor) {
 		if(!(cursor.getCount() >0)) 
 			return;
-		
 		String id = cursor.getString(LotsStatusQuery.ID);
 		view.setTag(id);
 		Log.d(TAG, "view Tag="+id);
