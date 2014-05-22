@@ -62,7 +62,7 @@ public class GCMIntentService extends GCMBaseIntentService {
         if(!TextUtils.isDigitsOnly(typeString))
         	return;
         int type = Integer.parseInt(typeString);
-        BoardCastCenter.displayMessage(context, messageBody, type);
+        BroadcastCenter.displayMessage(context, messageBody, type);
         // notifies user
 //        generateNotification(context, s);
     }

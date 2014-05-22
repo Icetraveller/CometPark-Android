@@ -24,7 +24,7 @@ import android.widget.ListView;
 import com.espian.showcaseview.ShowcaseView;
 import com.espian.showcaseview.targets.ActionViewTarget;
 import com.espian.showcaseview.targets.ViewTarget;
-import com.icetraveller.android.apps.cometpark.BoardCastCenter;
+import com.icetraveller.android.apps.cometpark.BroadcastCenter;
 import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
@@ -86,7 +86,7 @@ public class RankFragment extends ListFragment implements
 				// intent.putExtra(MapUtils.SHOW_LOT, viewId);
 				// startActivity(intent);
 				cb.onListItemClick();
-				BoardCastCenter.displayMessage(getActivity(), viewId,
+				BroadcastCenter.displayMessage(getActivity(), viewId,
 						Config.BROADCAST_VIEW_LOT);
 			}
 		});
