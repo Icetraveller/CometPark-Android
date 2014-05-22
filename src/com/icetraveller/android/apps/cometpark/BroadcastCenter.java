@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 import static com.icetraveller.android.apps.cometpark.Config.*;
 
-public class BoardCastCenter {
+public class BroadcastCenter {
 	public static void displayMessage(Context context, String message, int type) {
     	Log.d("Config", "received");
     	Intent intent = null;
@@ -18,7 +18,12 @@ public class BoardCastCenter {
     		intent = new Intent(VIEW_LOT_ACTION);
             intent.putExtra(EXTRA_MESSAGE, message);
     		break;
+    	case BROADCAST_UPDATE_PERMIT_PREF:
+    		intent = new Intent(ACTION_UPDATE_PERMIT_PREF);
+            intent.putExtra(EXTRA_MESSAGE, message);
+    		break;
     	}
+    		
         if(intent != null){
         	context.sendBroadcast(intent);
         }
