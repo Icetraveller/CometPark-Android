@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cometpark="http://schemas.android.com/apk/res-auto"
+      >
+
+    <item android:id="@+id/menu_navigate"
+        android:icon="@drawable/arrow"
+        android:title="Navigate"
+        android:orderInCategory="1"
+        cometpark:showAsAction="always" />
+
+</menu>

@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <ListPreference
-        android:key="pref_permit_type"
+        android:key="pref_key_permit_type"
         android:summary="@string/pref_permit_type_summary"
         android:title="@string/pref_permit_type_title" 
         android:entries="@array/pref_permit_type_entry"

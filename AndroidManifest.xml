@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.icetraveller.android.apps.cometpark"
     android:versionCode="1"
-    android:versionName="1.0" 
-    >
+    android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -17,6 +16,18 @@
     <!-- My Location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Keeps the processor from sleeping when a message is received. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <permission
+        android:name="com.icetraveller.android.apps.cometpark.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.icetraveller.android.apps.cometpark.permission.C2D_MESSAGE" />
+
+    <!-- This app has permission to register and receive data message. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <!-- required for MapView v2 -->
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -39,34 +50,47 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/app_name"
-             android:theme="@style/Theme.CometPark.Home" >
+            android:theme="@style/Theme.CometPark.Home" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name=".ui.MapActivity"
-            android:label="@string/title_map"/>
-        
-        <activity 
+            android:label="@string/title_map" />
+        <activity
             android:name=".ui.SettingsActivity"
-            android:label="@string/title_preference"
-            />
-        
+            android:label="@string/title_preference" />
+
         <provider
             android:name=".provider.CometParkProvider"
             android:authorities="com.icetraveller.android.apps.cometpark"
-            android:writePermission="com.icetraveller.android.apps.cometpark.permission.WRITE_SCHEDULE"
-            android:syncable="false"
+            android:exported="true"
             android:label="@string/app_name"
-            android:exported="true" />
-        
+            android:syncable="false"
+            android:writePermission="com.icetraveller.android.apps.cometpark.permission.WRITE_SCHEDULE" />
+
+        <receiver
+            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+
+                <!-- Receives the actual messages. -->
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <!-- Receives the registration id. -->
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.icetraveller.android.apps.cometpark" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".GCMIntentService" />
     </application>
 
 </manifest>

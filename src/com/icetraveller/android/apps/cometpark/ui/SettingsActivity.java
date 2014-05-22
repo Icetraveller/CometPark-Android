@@ -1,6 +1,8 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
 import com.icetraveller.android.apps.cometpark.R;
+import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -12,7 +14,6 @@ import android.preference.PreferenceActivity;
 
 public class SettingsActivity extends PreferenceActivity {
 
-	public static final String PREF_KEY_PERMIT_TYPE = "pref_permit_type";
 	
 	private static final int DEFAULT_VALUE = 1;
 
@@ -23,13 +24,12 @@ public class SettingsActivity extends PreferenceActivity {
 		final String[] stringArray = this.getResources().getStringArray(
 				R.array.pref_permit_type_entry);
 
-		ListPreference listPreference = (ListPreference) findPreference(PREF_KEY_PERMIT_TYPE);
+		ListPreference listPreference = (ListPreference) findPreference(PreferenceHelper.PREF_KEY_PERMIT_TYPE);
 		if (listPreference.getValue() == null) {
 			// to ensure we don't get a null value
 			// set first value by default
 			listPreference.setValueIndex(DEFAULT_VALUE);
 		}
-		
 		int index = parse(listPreference.getValue().toString());
 
 		listPreference.setSummary(stringArray[index]);
@@ -42,6 +42,7 @@ public class SettingsActivity extends PreferenceActivity {
 						return true;
 					}
 				});
+		
 	}
 	
 	private int parse(String i){

@@ -17,6 +17,9 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 public class SpotsHandler extends JSONHandler {
 	private static final String TAG = makeLogTag(SpotsHandler.class);
+	
+	public static final int CREATE = 1;
+	public static final int UPDATE = 2;
 
 	public SpotsHandler(Context context) {
 		super(context);
@@ -32,18 +35,18 @@ public class SpotsHandler extends JSONHandler {
 		}
 		return batch;
 	}
-
-	private static void parseSpot(Spot spot,
+	
+	public static void parseSpot(Spot spot,
 			ArrayList<ContentProviderOperation> batch) {
 		ContentProviderOperation.Builder builder = ContentProviderOperation
-				.newInsert(CometParkContract.Spots.CONTENT_URI);
+				.newInsert(CometParkContract.Spots.buildUri());
 		builder.withValue(CometParkContract.Spots.ID, spot.id);
 		builder.withValue(CometParkContract.Spots.LOT, spot.lot);
-		builder.withValue(CometParkContract.Spots.TYPE, spot.type);
+		builder.withValue(CometParkContract.Spots.TYPE, spot.permit_type);
 		builder.withValue(CometParkContract.Spots.STATUS, spot.status);
 		builder.withValue(CometParkContract.Spots.LAT, spot.lat);
 		builder.withValue(CometParkContract.Spots.LNG, spot.lng);
 		batch.add(builder.build());
 	}
-
+	
 }

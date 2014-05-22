@@ -3,6 +3,7 @@ package com.icetraveller.android.apps.cometpark.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.icetraveller.android.apps.cometpark.provider.CometParkContract.LotStatus;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Lots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract.Spots;
 import com.icetraveller.android.apps.cometpark.provider.CometParkDatabase.Tables;
@@ -18,6 +19,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -33,7 +35,7 @@ public class CometParkProvider extends ContentProvider {
 	private static final int SPOTS_ID = 101;
 	private static final int SPOTS_ID_LOT = 102;
 	private static final int SPOTS_ID_TYPE = 103;
-//	private static final int SPOTS_ID_LOCATION_ID = 104;
+	private static final int SPOTS_OF_LOT = 104;
 	private static final int SPOTS_ID_STATUS = 105;
 
 	private static final int LOTS = 200;
@@ -46,11 +48,14 @@ public class CometParkProvider extends ContentProvider {
 	private static final int LOTS_ID_STATUS = 207;
 	private static final int LOTS_ID_MAP_TILES_FILE = 208;
 	private static final int LOTS_ID_MAP_TILES_URL = 209;
-
+	
 	private static final int LOCATIONS = 300;
 	private static final int LOCATIONS_ID = 301;
 	private static final int LOCATIONS_ID_LATITUDE = 302;
 	private static final int LOCATIONS_ID_LONGITUDE = 303;
+	
+	private static final int LOT_STATUS = 400;
+	private static final int LOTS_LOT_STATUS = 401;
 
 	/**
 	 * Build and return a {@link UriMatcher} that catches all {@link Uri}
@@ -67,12 +72,14 @@ public class CometParkProvider extends ContentProvider {
 		// matcher.addURI(authority, "maptiles/*", MAPTILES_FLOOR);
 
 		matcher.addURI(authority, "spots", SPOTS);
+		matcher.addURI(authority, "spots/of/*", SPOTS_OF_LOT);
 		matcher.addURI(authority, "spots/*", SPOTS_ID);
 		matcher.addURI(authority, "spots/*/lot", SPOTS_ID_LOT);
 		matcher.addURI(authority, "spots/*/type", SPOTS_ID_TYPE);
 		matcher.addURI(authority, "spots/*/status", SPOTS_ID_STATUS);
 
 		matcher.addURI(authority, "lots", LOTS);
+		matcher.addURI(authority, "lots/lot_status", LOTS_LOT_STATUS);
 		matcher.addURI(authority, "lots/*", LOTS_ID);
 		matcher.addURI(authority, "lots/*/name", LOTS_ID_NAME);
 		matcher.addURI(authority, "lots/*/location_top_left",
@@ -90,6 +97,8 @@ public class CometParkProvider extends ContentProvider {
 
 		matcher.addURI(authority, "locations", LOCATIONS);
 		matcher.addURI(authority, "locations/*", LOCATIONS_ID);
+		
+		matcher.addURI(authority, "lot_status", LOT_STATUS);
 
 		return matcher;
 	}
@@ -116,6 +125,8 @@ public class CometParkProvider extends ContentProvider {
 			return Spots.CONTENT_TYPE;
 		case SPOTS_ID:
 			return Spots.CONTENT_ITEM_TYPE;
+		case SPOTS_OF_LOT:
+			return Spots.CONTENT_TYPE;
 		case LOTS:
 			return Lots.CONTENT_TYPE;
 		case LOTS_ID:
@@ -124,6 +135,8 @@ public class CometParkProvider extends ContentProvider {
 //			return Locations.CONTENT_TYPE;
 //		case LOCATIONS_ID:
 //			return Locations.CONTENT_ITEM_TYPE;
+		case LOT_STATUS:
+			return LotStatus.CONTENT_TYPE;
 		default:
 			throw new UnsupportedOperationException("Unknown uri: " + uri);
 		}
@@ -162,6 +175,11 @@ public class CometParkProvider extends ContentProvider {
 			db.insert(Tables.LOTS, null, values);
 			notifyChange(uri);
 			return Lots.buildLotUri(values.getAsString(Lots.ID));
+		}
+		case LOT_STATUS:{
+			db.insert(Tables.LOT_STATUS, null, values);
+			notifyChange(uri);
+			return LotStatus.CONTENT_URI;
 		}
 //		case LOCATIONS: {
 //			db.insert(Tables.LOCATIONS, null, values);
@@ -243,12 +261,19 @@ public class CometParkProvider extends ContentProvider {
 			final String spotId = Spots.getSpotId(uri);
 			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
 		}
+		case SPOTS_OF_LOT: {
+        	final String lotId = Spots.getLotIdForSpots(uri);
+        	return builder.table(Tables.SPOTS).where(Spots.LOT + "=?", lotId);
+        }
 		case LOTS: {
 			return builder.table(Tables.LOTS);
 		}
 		case LOTS_ID: {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
+		}
+		case LOT_STATUS:{
+			return builder.table(Tables.LOT_STATUS);
 		}
 //		case LOCATIONS: {
 //			return builder.table(Tables.LOCATIONS);
@@ -281,12 +306,26 @@ public class CometParkProvider extends ContentProvider {
         	final String spotId = Spots.getSpotId(uri);
 			return builder.table(Tables.SPOTS).where(Spots.ID + "=?", spotId);
         }
+        case SPOTS_OF_LOT: {
+        	final String lotId = Spots.getLotIdForSpots(uri);
+        	Log.d(TAG, ""+lotId);
+        	return builder.table(Tables.SPOTS).where(Spots.LOT + "=?", lotId);
+        }
         case LOTS: {
 			return builder.table(Tables.LOTS);
 		}
 		case LOTS_ID: {
 			final String lotId = Lots.getLotId(uri);
 			return builder.table(Tables.LOTS).where(Lots.ID + "=?", lotId);
+		}
+		case LOT_STATUS:{
+			return builder.table(Tables.LOT_STATUS);
+		}
+		case LOTS_LOT_STATUS:{
+			return builder.table(Tables.LOT_JOIN_LOT_STATUS)
+					.mapToTable(Lots._ID, Tables.LOTS)
+					.mapToTable(Lots.ID, Tables.LOTS)
+					.mapToTable(LotStatus.ID, Tables.LOT_STATUS);
 		}
 //		case LOCATIONS: {
 //			return builder.table(Tables.LOCATIONS);
