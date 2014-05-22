@@ -18,10 +18,10 @@ public class BroadcastCenter {
     		intent = new Intent(VIEW_LOT_ACTION);
             intent.putExtra(EXTRA_MESSAGE, message);
     		break;
-    	case BROADCAST_UPDATE_PERMIT_PREF:
-    		intent = new Intent(ACTION_UPDATE_PERMIT_PREF);
-            intent.putExtra(EXTRA_MESSAGE, message);
-    		break;
+//    	case BROADCAST_UPDATE_PERMIT_PREF:
+//    		intent = new Intent(ACTION_UPDATE_PERMIT_PREF);
+//            intent.putExtra(EXTRA_MESSAGE, message);
+//    		break;
     	}
     		
         if(intent != null){

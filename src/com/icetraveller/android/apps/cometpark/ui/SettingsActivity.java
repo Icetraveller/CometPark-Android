@@ -1,10 +1,13 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
+import com.icetraveller.android.apps.cometpark.BroadcastCenter;
+import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -16,6 +19,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 	
 	private static final int DEFAULT_VALUE = 1;
+	private Context context = this;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,6 +43,7 @@ public class SettingsActivity extends PreferenceActivity {
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
 						preference.setSummary(stringArray[parse(newValue.toString())]);
+						BroadcastCenter.displayMessage(context, "", Config.BROADCAST_UPDATE_PERMIT_PREF);
 						return true;
 					}
 				});

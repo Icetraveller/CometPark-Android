@@ -108,7 +108,7 @@ public class Config {
 
 	public static final int BROADCAST_VIEW_LOT = 1000;
 
-	public static final int BROADCAST_UPDATE_PERMIT_PREF = 1100;
+//	public static final int BROADCAST_UPDATE_PERMIT_PREF = 1100;
 
 	public static final String TYPE = "type";
 
@@ -148,7 +148,7 @@ public class Config {
 	public static final String UPDATE_SPOTS_ACTION = "com.icetraveller.android.apps.cometpark.gcm.UPDATE_SPOTS";
 
 	public static final String VIEW_LOT_ACTION = "com.icetraveller.android.apps.cometpark.gcm.VIEW_LOT";
-	public static final String ACTION_UPDATE_PERMIT_PREF = "com.icetraveller.android.apps.cometpark.UPDATE_PERMIT_PREF";
+//	public static final String ACTION_UPDATE_PERMIT_PREF = "com.icetraveller.android.apps.cometpark.UPDATE_PERMIT_PREF";
 
 	/**
 	 * Intent's extra that contains the message to be displayed.

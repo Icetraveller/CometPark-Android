@@ -1,8 +1,10 @@
 package com.icetraveller.android.apps.cometpark.ui;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Color;
@@ -28,6 +30,7 @@ import com.icetraveller.android.apps.cometpark.BroadcastCenter;
 import com.icetraveller.android.apps.cometpark.Config;
 import com.icetraveller.android.apps.cometpark.R;
 import com.icetraveller.android.apps.cometpark.provider.CometParkContract;
+import com.icetraveller.android.apps.cometpark.utils.LogUtils;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 import com.icetraveller.android.apps.cometpark.utils.UIUtils;
@@ -36,6 +39,9 @@ import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
 public class RankFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
+	
+	private static final String TAG = LogUtils.makeLogTag(RankFragment.class);
+	
 	private RankAdapter mAdapter;
 	private View mEmptyView;
 	CallBacks cb;
@@ -60,6 +66,14 @@ public class RankFragment extends ListFragment implements
 		inflater.inflate(R.layout.empty_waiting_for_sync,
 				(ViewGroup) mEmptyView, true);
 		return rootView;
+	}
+
+	public void onResume() {
+		super.onResume();
+	}
+
+	public void onDestory() {
+		super.onDestroy();
 	}
 
 	@Override
@@ -128,7 +142,7 @@ public class RankFragment extends ListFragment implements
 		getLoaderManager().initLoader(RankAdapter.LotsStatusQuery._TOKEN, null,
 				this);
 	}
-	
+
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 		Uri uri = CometParkContract.Lots.buildLotsLotStatus();
@@ -141,12 +155,12 @@ public class RankFragment extends ListFragment implements
 		if (getActivity() == null) {
 			return;
 		}
-		
+
 		mAdapter.swapCursor(cursor);
 		if (cursor.getCount() > 0) {
 			mEmptyView.setVisibility(View.GONE);
 		}
-		
+
 	}
 
 	@Override
@@ -154,5 +168,6 @@ public class RankFragment extends ListFragment implements
 		// TODO Auto-generated method stub
 
 	}
+
 
 }
