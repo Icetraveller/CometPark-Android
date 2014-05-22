@@ -39,5 +39,7 @@
    <!-- network hints -->
     <string name="hint_network_unavailable">Network is not available</string>
     
+    <!-- errors -->
+    <string name="error_not_supported">Your device doesn\'t support this app.</string>
 
 </resources>

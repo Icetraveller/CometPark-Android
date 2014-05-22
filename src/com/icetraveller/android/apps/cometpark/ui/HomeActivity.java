@@ -50,6 +50,7 @@ import com.icetraveller.android.apps.cometpark.sync.DataLoaderTask;
 import com.icetraveller.android.apps.cometpark.sync.SyncHelper;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
+import com.icetraveller.android.apps.cometpark.utils.PlayServicesUtils;
 import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
 import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
@@ -82,7 +83,8 @@ public class HomeActivity extends BaseActivity implements
 			return;
 		}
 		setContentView(R.layout.activity_home);
-
+		boolean isPlayServiceOn = PlayServicesUtils
+				.checkGooglePlaySevices(this);
 		boolean showLoadingPage = PreferenceHelper.getDataLoaded(this);
 		if (showLoadingPage) {
 			DataLoaderTask dataLoader = new DataLoaderTask(this,
@@ -91,7 +93,9 @@ public class HomeActivity extends BaseActivity implements
 			View loadingView = (LinearLayout) findViewById(R.id.loading);
 			loadingView.setVisibility(View.VISIBLE);
 		} else {
-			loadPager(savedInstanceState);
+			if (isPlayServiceOn) {
+				loadPager(savedInstanceState);
+			}
 		}
 
 	}
@@ -143,7 +147,13 @@ public class HomeActivity extends BaseActivity implements
 
 		// Sync data on load
 		if (savedInstanceState == null) {
-			registerGCMClient();
+			try {
+				registerGCMClient();
+			} catch (UnsupportedOperationException e) {
+				finish();
+				Toast.makeText(this, R.string.error_not_supported,
+						Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
@@ -152,23 +162,24 @@ public class HomeActivity extends BaseActivity implements
 		super.onResume();
 		int flag;
 		boolean isNetAvailable = UIUtils.isNetworkAvailable(this);
-		if(isNetAvailable){
-			flag = SyncHelper.FLAG_SYNC_LOCAL
-					| SyncHelper.FLAG_SYNC_REMOTE;
-		}else{
-			Toast.makeText(this, R.string.hint_network_unavailable, Toast.LENGTH_SHORT).show();
+		if (isNetAvailable) {
+			flag = SyncHelper.FLAG_SYNC_LOCAL | SyncHelper.FLAG_SYNC_REMOTE;
+		} else {
+			Toast.makeText(this, R.string.hint_network_unavailable,
+					Toast.LENGTH_SHORT).show();
 			flag = SyncHelper.FLAG_SYNC_LOCAL;
 		}
 		process = new SyncProcessor(this);
 		process.execute(flag);
 
-		
 	}
 
 	@Override
 	protected void onDestroy() {
 		// TODO should test to say if the data will be corrupt;
-		process.cancel(true);
+		if (process != null) {
+			process.cancel(true);
+		}
 		if (mRegisterTask != null) {
 			mRegisterTask.cancel(true);
 		}

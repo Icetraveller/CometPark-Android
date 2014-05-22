@@ -42,6 +42,7 @@ import android.widget.FrameLayout;
 import com.espian.showcaseview.targets.ActionItemTarget;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -133,7 +134,6 @@ public class MapFragment extends SupportMapFragment implements
 			wholeCampusMode = true;
 		}
 		LOGD(TAG, "Map onCreate");
-
 		clearMap();
 		// get DPI
 		mDPI = getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
@@ -189,10 +189,14 @@ public class MapFragment extends SupportMapFragment implements
 					}
 				});
 
+		return v;
+	}
+	
+	public void onResume(){
+		super.onResume();
 		if (mMap == null) {
 			setupMap(true);
 		}
-
 		LoaderManager lm = getActivity().getSupportLoaderManager();
 		if (!wholeCampusMode) {
 			lm.initLoader(LotsQuery._TOKEN, null, this);
@@ -207,8 +211,6 @@ public class MapFragment extends SupportMapFragment implements
 		} else {
 			lm.initLoader(LotsStatusQuery._TOKEN, null, this);
 		}
-
-		return v;
 	}
 
 	public void onDestroy() {
@@ -253,7 +255,6 @@ public class MapFragment extends SupportMapFragment implements
 	private void setupMap(boolean resetCamera) {
 		mInfoAdapter = new MapInfoWindowAdapter(getLayoutInflater(null),
 				getResources(), mMarkers);
-
 		mMap = getMap();
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnInfoWindowClickListener(this);

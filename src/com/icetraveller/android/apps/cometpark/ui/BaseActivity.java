@@ -19,7 +19,9 @@ public class BaseActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// TODO check user role here
+//		if(!){
+//			finish();
+//		}
 	}
 
 	@Override
@@ -27,7 +29,7 @@ public class BaseActivity extends ActionBarActivity {
 		super.onResume();
 		// Verifies the proper version of Google Play Services exists on the
 		// device.
-		PlayServicesUtils.checkGooglePlaySevices(this);
+//		PlayServicesUtils.checkGooglePlaySevices(this);
 	}
 
 	protected void setHasTabs() {
