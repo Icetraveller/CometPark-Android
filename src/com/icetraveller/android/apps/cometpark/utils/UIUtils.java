@@ -10,6 +10,8 @@ import com.icetraveller.android.apps.cometpark.ui.MapActivity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
 
 public class UIUtils {
@@ -23,20 +25,43 @@ public class UIUtils {
 		String arrayStr = Arrays.toString(array);
 		return arrayStr.substring(1, arrayStr.length() - 1);
 	}
+	
+	 public static boolean isNetworkAvailable(Context context) {
+	        boolean isAvailable;
+	            isAvailable = isNetWorkAvailable(context);
+	            if (!isAvailable) {
+	                return false;
+	            }
+	        return true;
+	    }
+	 
+	 static boolean isNetWorkAvailable(Context context) {
 
-	public static void showTutorial(Context context, View v) {
-		boolean showTutorial = PreferenceHelper.getFirstTimeUser(context);
-		if (showTutorial) {
-			showTurorial(context, v);
-			PreferenceHelper.setFirstTimeUser(context, false);
-		}
-	}
+	        boolean ret = false;
+	        if (context == null) {
+	            return ret;
+	        }
+	        try {
+	            ConnectivityManager connetManager = (ConnectivityManager) context
+	                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+	            if (connetManager == null) {
+	                return ret;
+	            }
+	            NetworkInfo[] infos = connetManager.getAllNetworkInfo();
+	            if (infos == null) {
+	                return ret;
+	            }
+	            for (int i = 0; i < infos.length && infos[i] != null; i++) {
+	                if (infos[i].isConnected() && infos[i].isAvailable()) {
+	                    ret = true;
+	                    break;
+	                }
+	            }
+	        } catch (Exception e) {
 
-	private static void showTurorial(Context context, View v) {
-		ShowcaseView.ConfigOptions mOptions = new ShowcaseView.ConfigOptions();
-		mOptions.centerText = true;
-		ShowcaseView.insertShowcaseView(new ViewTarget(v), (Activity)context, "Tip",
-				"Help", mOptions);
-	}
+	            e.printStackTrace();
+	        }
+	        return ret;
+	    }
 
 }

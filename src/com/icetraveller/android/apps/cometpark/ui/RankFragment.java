@@ -127,7 +127,6 @@ public class RankFragment extends ListFragment implements
 		super.onActivityCreated(savedInstanceState);
 		getLoaderManager().initLoader(RankAdapter.LotsStatusQuery._TOKEN, null,
 				this);
-		UIUtils.showTutorial(getActivity(),getActivity().findViewById(R.id.map_button));
 	}
 	
 	@Override

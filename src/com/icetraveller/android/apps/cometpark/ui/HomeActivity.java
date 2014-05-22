@@ -51,6 +51,7 @@ import com.icetraveller.android.apps.cometpark.sync.SyncHelper;
 import com.icetraveller.android.apps.cometpark.sync.SyncProcessor;
 import com.icetraveller.android.apps.cometpark.utils.MapUtils;
 import com.icetraveller.android.apps.cometpark.utils.PreferenceHelper;
+import com.icetraveller.android.apps.cometpark.utils.UIUtils;
 
 import static com.icetraveller.android.apps.cometpark.utils.LogUtils.*;
 
@@ -149,9 +150,17 @@ public class HomeActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		int flag;
+		boolean isNetAvailable = UIUtils.isNetworkAvailable(this);
+		if(isNetAvailable){
+			flag = SyncHelper.FLAG_SYNC_LOCAL
+					| SyncHelper.FLAG_SYNC_REMOTE;
+		}else{
+			Toast.makeText(this, R.string.hint_network_unavailable, Toast.LENGTH_SHORT).show();
+			flag = SyncHelper.FLAG_SYNC_LOCAL;
+		}
 		process = new SyncProcessor(this);
-		process.execute(SyncHelper.FLAG_SYNC_LOCAL
-				| SyncHelper.FLAG_SYNC_REMOTE);
+		process.execute(flag);
 
 		
 	}

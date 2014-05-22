@@ -36,6 +36,8 @@
     <string name="description_settings">Settings</string>
     <string name="description_about">About</string>
     
+   <!-- network hints -->
+    <string name="hint_network_unavailable">Network is not available</string>
     
 
 </resources>
