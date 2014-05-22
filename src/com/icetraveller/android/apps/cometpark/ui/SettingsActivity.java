@@ -43,7 +43,7 @@ public class SettingsActivity extends PreferenceActivity {
 					public boolean onPreferenceChange(Preference preference,
 							Object newValue) {
 						preference.setSummary(stringArray[parse(newValue.toString())]);
-						BroadcastCenter.displayMessage(context, "", Config.BROADCAST_UPDATE_PERMIT_PREF);
+//						BroadcastCenter.displayMessage(context, "", Config.BROADCAST_UPDATE_PERMIT_PREF);
 						return true;
 					}
 				});
