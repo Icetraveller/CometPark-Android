@@ -9,13 +9,18 @@ The application provides a smart ranking list that is based on available parking
 Once got there, a detailed built-in parking lot map(SVG, which will not loss any detail of the graphics when zoom in) will show you all available parking spots, and they update in real time.
 
 The project uses Google App Engine with multiple APIs, including datastore(with objectify), Java Channel API, Google Cloud Message. And Google Map Api v2 with Google Map Projections of SVG graphics, Showcase View, and support libraries on the Android side.
-![Example Image][2]![Example Image][3]
-
-
 Developed By
 ============
 * Yue Wu - <yuewu0917@gmail.com>
 
+Screeshots
+============
+![Example Image][2] 
+![Example Image][3]
+
+
+
+
 [1]: https://github.com/Icetraveller/CometPark-GAE
-[2]: https://github.com/Icetraveller/CometPark-Android/blob/master/art/Screenshot_2014-05-07-10-10-41.png
-[3]: https://github.com/Icetraveller/CometPark-Android/blob/master/art/Screenshot_2014-05-07-10-11-41.png
+[2]: https://raw.githubusercontent.com/Icetraveller/CometPark-Android/master/art/Screenshot_2014-05-07-10-10-41.png
+[3]: https://raw.githubusercontent.com/Icetraveller/CometPark-Android/master/art/Screenshot_2014-05-07-10-11-41.png
