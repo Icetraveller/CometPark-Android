@@ -1,6 +1,6 @@
 CometPark-Android
 =================
-Welcome to the CometPark-Android wiki! This git repository is Android side of the whole project.
+Welcome to the CometPark-Android! This git repository is Android side of the whole project.
 
 The CometPark project goal is to provide a solution to the UT Dallas campus parking problem, which includes the customization of hardware devices and sensors installed on each parking lot, implementation of cloud service and Android mobile application.
 
