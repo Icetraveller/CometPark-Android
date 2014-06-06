@@ -14,6 +14,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -56,5 +57,16 @@ public class SettingsActivity extends PreferenceActivity {
 		}catch(NumberFormatException e){
 			return DEFAULT_VALUE;
 		}
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    // Respond to the action bar's Up/Home button
+	    case android.R.id.home:
+	        finish();
+	        return true;
+	    }
+	    return super.onOptionsItemSelected(item);
 	}
 }
