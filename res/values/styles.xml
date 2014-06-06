@@ -110,6 +110,13 @@
         <item name="android:textIsSelectable">true</item>
         <item name="android:textAlignment">viewStart</item>
     </style>
+    <style name="TextBody">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+        <item name="android:textColor">@color/body_text_1</item>
+        <item name="android:textIsSelectable">true</item>
+        <item name="android:textAlignment">textStart</item>
+    </style>
     
      <!-- Map -->
     <style name="MapInfoText" parent="@style/TextHeaderSub">

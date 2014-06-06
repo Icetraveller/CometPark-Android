@@ -270,6 +270,7 @@ public class HomeActivity extends BaseActivity implements
 
 		case R.id.menu_about:
 			// TODO HelpUtils.showAbout(this);
+			startActivity(new Intent(this,AboutActivity.class));
 			return true;
 
 		case R.id.menu_settings:

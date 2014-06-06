@@ -67,6 +67,10 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_preference" />
+        
+        <activity
+            android:name=".ui.AboutActivity"
+            android:label="@string/title_about"	/>
 
         <provider
             android:name=".provider.CometParkProvider"
