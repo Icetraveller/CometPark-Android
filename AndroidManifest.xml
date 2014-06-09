@@ -20,13 +20,15 @@
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- In App Purchase -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+
+    <!-- This app has permission to register and receive data message. -->
     <permission
         android:name="com.icetraveller.android.apps.cometpark.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.icetraveller.android.apps.cometpark.permission.C2D_MESSAGE" />
-
-    <!-- This app has permission to register and receive data message. -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <!-- required for MapView v2 -->
     <uses-feature
@@ -67,10 +69,9 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_preference" />
-        
         <activity
             android:name=".ui.AboutActivity"
-            android:label="@string/title_about"	/>
+            android:label="@string/title_about" />
 
         <provider
             android:name=".provider.CometParkProvider"
