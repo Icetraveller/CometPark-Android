@@ -39,8 +39,13 @@ public class BaseActivity extends ActionBarActivity {
 	/**
 	 * Sets the icon.
 	 */
-	protected void setActionBarTrackIcon() {
-		getSupportActionBar().setIcon(R.drawable.actionbar_icon);
+	protected void setActionBarTrackIcon(int id) {
+		if(id == 0){
+			getSupportActionBar().setIcon(R.drawable.actionbar_icon);
+		}else{
+			getSupportActionBar().setIcon(R.drawable.ic_launcher);
+		}
+		
 		getSupportActionBar().setTitle(R.string.app_name);
 	}
 

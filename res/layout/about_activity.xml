@@ -37,10 +37,10 @@
         <ImageView
             android:id="@+id/company_logo"
             android:scaleType="fitStart"
+            android:src="@drawable/company_logo"
             android:layout_width="match_parent"
             android:layout_height="@dimen/about_image_size"
             android:layout_marginTop="@dimen/content_padding_normal"
-            android:visibility="gone"
             android:layout_marginLeft="@dimen/content_padding_normal"
             android:layout_marginRight="@dimen/content_padding_normal" />
 

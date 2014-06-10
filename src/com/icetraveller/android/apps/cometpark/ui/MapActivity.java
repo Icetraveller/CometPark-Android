@@ -19,6 +19,7 @@ public class MapActivity extends SimpleSinglePaneActivity {
 		Bundle b = new Bundle();
 		b.putString(MapUtils.SHOW_LOT, lotId);
 		mapFragment.setArguments(b);
+		setActionBarTrackIcon(1);
 		return mapFragment;
 	}
 	

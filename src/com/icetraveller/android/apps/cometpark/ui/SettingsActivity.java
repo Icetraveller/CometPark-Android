@@ -36,7 +36,6 @@ public class SettingsActivity extends PreferenceActivity {
 			listPreference.setValueIndex(DEFAULT_VALUE);
 		}
 		int index = parse(listPreference.getValue().toString());
-
 		listPreference.setSummary(stringArray[index]);
 		listPreference
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
