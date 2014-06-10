@@ -42,7 +42,7 @@
     <!-- about -->
     <string name="about_name">Icetraveller Workshop</string>
     <string name="about_subtitle">CometPark System built in April 2014</string>
-    <string name="description">My name is Yue Wu, an international student from UT Dallas in US. This is a course project of Advanced Software Project of graduate school of CS. For more information and source code, please go to link:</string>
+    <string name="description">My name is Yue.W, an international student from UT Dallas in US. This is a course project of Advanced Software Project of graduate school of CS. For more information and source code, please go to link:</string>
 	<string name="about_url">https://github.com/Icetraveller/CometPark-Android</string>
 	<string name="donate">Donate</string>
 	<string name="desc_donation">If you consider to support me and help me with my tuition fee of school...</string>
