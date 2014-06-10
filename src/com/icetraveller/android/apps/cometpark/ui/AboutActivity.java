@@ -80,8 +80,6 @@ public class AboutActivity extends Activity {
 		});
 	}
 
-	
-
 	// query items that we own
 	IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
 		@Override

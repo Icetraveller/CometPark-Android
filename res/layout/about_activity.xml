@@ -64,33 +64,6 @@
             android:paddingLeft="@dimen/content_padding_normal"
             android:paddingRight="@dimen/content_padding_normal"
             style="@style/TextBody"/>
-        <View
-            android:layout_marginTop="16dip"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/light_blue" />
-        
-        <TextView 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/content_padding_normal"
-            android:paddingBottom="@dimen/element_spacing_normal"
-            android:paddingLeft="@dimen/content_padding_normal"
-            android:paddingRight="@dimen/content_padding_normal"
-            android:text="@string/desc_donation"
-            style="@style/TextBody"
-            />
-        <Button 
-            android:id="@+id/donate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/content_padding_normal"
-            android:paddingBottom="@dimen/element_spacing_normal"
-            android:paddingLeft="@dimen/content_padding_normal"
-            android:paddingRight="@dimen/content_padding_normal"
-            android:text="@string/donate"
-            android:textColor="@color/light_blue"
-            />
 
     </LinearLayout>
 </ScrollView>
